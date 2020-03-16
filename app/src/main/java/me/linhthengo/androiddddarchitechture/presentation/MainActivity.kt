@@ -1,7 +1,8 @@
-package me.linhthengo.androiddddarchitechture
+package me.linhthengo.androiddddarchitechture.presentation
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import me.linhthengo.androiddddarchitechture.R
 
 class MainActivity : AppCompatActivity() {
 
