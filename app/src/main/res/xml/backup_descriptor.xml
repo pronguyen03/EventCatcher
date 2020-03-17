@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
     <!-- Exclude specific shared preferences that contain GCM registration Id -->
+    <exclude
+        domain="sharedpref"
+        path="secure_pref.xml" />
 </full-backup-content>
