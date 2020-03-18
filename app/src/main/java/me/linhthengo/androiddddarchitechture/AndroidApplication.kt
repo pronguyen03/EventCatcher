@@ -9,15 +9,11 @@ import me.linhthengo.androiddddarchitechture.utils.EncryptedStorageManager
 import javax.inject.Inject
 
 
-class AndroidApplication : Application(), HasAndroidInjector {
-    @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>
+class AndroidApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
         DaggerApplicationComponent.create().inject(this)
         EncryptedStorageManager.init(this)
     }
-
-    override fun androidInjector(): AndroidInjector<Any> = dispatchingAndroidInjector
 }

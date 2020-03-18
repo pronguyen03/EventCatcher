@@ -1,5 +1,6 @@
 package me.linhthengo.androiddddarchitechture.core.di
 
+import android.app.Application
 import android.content.Context
 import com.squareup.moshi.Moshi
 import dagger.Module
@@ -25,6 +26,10 @@ class ApplicationModule(private val application: AndroidApplication) {
 
     @Provides
     @Singleton
+    fun provideApplication(): Application = application
+
+    @Provides
+    @Singleton
     fun provideMoshi(): Moshi = Moshi.Builder().build()
 
     @Provides
@@ -37,7 +42,9 @@ class ApplicationModule(private val application: AndroidApplication) {
             .build()
     }
 
-    private fun createClient(): OkHttpClient {
+    @Provides
+    @Singleton
+    fun createClient(): OkHttpClient {
         val okHttpClientBuilder: OkHttpClient.Builder = OkHttpClient.Builder()
         if (BuildConfig.DEBUG) {
             val loggingInterceptor =
