@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 
-object EncryptedSharedPreferenceManager {
+object EncryptedStorageManager {
     private const val TOKEN_KEY = "token"
     private var token: String? = null
 
