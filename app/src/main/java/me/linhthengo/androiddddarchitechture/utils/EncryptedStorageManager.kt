@@ -5,13 +5,13 @@ import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 
-object EncryptedSharedPreferenceManager {
-    private const val TOKEN_KEY = "token"
+class EncryptedStorageManager(context: Context) {
+    private val tokenKey = "token"
     private var token: String? = null
 
-    private lateinit var encryptedSharedPreferences: SharedPreferences
+    private var encryptedSharedPreferences: SharedPreferences
 
-    fun init(context: Context) {
+    init {
         val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
         encryptedSharedPreferences = EncryptedSharedPreferences
             .create(
@@ -24,12 +24,12 @@ object EncryptedSharedPreferenceManager {
     }
 
     fun saveToken(token: String) {
-        encryptedSharedPreferences.edit().putString(TOKEN_KEY, token).apply()
+        encryptedSharedPreferences.edit().putString(tokenKey, token).apply()
     }
 
     fun hasToken() = token.isNullOrBlank()
 
-    fun getToken() = token ?: encryptedSharedPreferences.getString(TOKEN_KEY, "")?.also {
+    fun getToken() = token ?: encryptedSharedPreferences.getString(tokenKey, "")?.also {
         token = it
     }
 }

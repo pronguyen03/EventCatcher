@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "me.linhthengo.androiddddarchitechture"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -49,7 +49,7 @@ android {
     }
 }
 
-def arrow_version = "0.10.4"
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -75,6 +75,21 @@ dependencies {
     // Testing Navigation
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
 
-    // Security
+    // Security - Encrypted Storage
     implementation "androidx.security:security-crypto:1.0.0-alpha02"
+
+    // Retrofit - Network client
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-moshi:$moshi_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$http_logging_version"
+
+    // Dagger - Dependency Injection
+    implementation "com.google.dagger:dagger:$dagger_version"
+    implementation "com.google.dagger:dagger-android:$dagger_version"
+    implementation "com.google.dagger:dagger-android-support:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+
+    // LeadCanary - Find the leaks
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leak_canary_version"
 }
