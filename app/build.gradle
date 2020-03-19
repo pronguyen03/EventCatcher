@@ -49,12 +49,7 @@ android {
     }
 }
 
-def arrow_version = "0.10.4"
-def retrofit_version = "2.7.2"
-def moshi_version = "2.4.0"
-def dagger_version = "2.24"
-def http_logging_version = "4.4.0"
-def leak_canary_version = "2.2"
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
