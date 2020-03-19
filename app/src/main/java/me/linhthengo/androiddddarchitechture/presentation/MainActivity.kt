@@ -1,11 +1,12 @@
 package me.linhthengo.androiddddarchitechture.presentation
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import dagger.android.AndroidInjection
 import me.linhthengo.androiddddarchitechture.R
+import me.linhthengo.androiddddarchitechture.core.platform.BaseActivity
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
+
+    override fun layoutId(): Int = R.layout.activity_main
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

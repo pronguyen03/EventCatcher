@@ -1,6 +1,13 @@
 package me.linhthengo.androiddddarchitechture.core.platform
 
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import dagger.android.support.DaggerAppCompatActivity
 
-class BaseActivity : AppCompatActivity() {
+abstract class BaseActivity : DaggerAppCompatActivity() {
+    abstract fun layoutId(): Int
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(layoutId())
+    }
 }

@@ -1,12 +1,12 @@
 package me.linhthengo.androiddddarchitechture.core.di
 
-import android.app.Application
 import android.content.Context
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import me.linhthengo.androiddddarchitechture.AndroidApplication
 import me.linhthengo.androiddddarchitechture.BuildConfig
+import me.linhthengo.androiddddarchitechture.utils.EncryptedStorageManager
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -26,7 +26,7 @@ class ApplicationModule(private val application: AndroidApplication) {
 
     @Provides
     @Singleton
-    fun provideApplication(): Application = application
+    fun provideApplication(): AndroidApplication = application
 
     @Provides
     @Singleton
@@ -34,17 +34,17 @@ class ApplicationModule(private val application: AndroidApplication) {
 
     @Provides
     @Singleton
-    fun provideRetrofit(moshi: Moshi): Retrofit {
+    fun provideRetrofit(moshi: Moshi, client: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(createClient())
+            .client(client)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
     }
 
     @Provides
     @Singleton
-    fun createClient(): OkHttpClient {
+    fun provideOkHttpClient(): OkHttpClient {
         val okHttpClientBuilder: OkHttpClient.Builder = OkHttpClient.Builder()
         if (BuildConfig.DEBUG) {
             val loggingInterceptor =
@@ -52,5 +52,11 @@ class ApplicationModule(private val application: AndroidApplication) {
             okHttpClientBuilder.addInterceptor(loggingInterceptor)
         }
         return okHttpClientBuilder.build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideEncryptedStorageManager(): EncryptedStorageManager {
+        return EncryptedStorageManager(application)
     }
 }
