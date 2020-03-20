@@ -1,6 +1,7 @@
 package me.linhthengo.androiddddarchitechture.core.di
 
 import android.content.Context
+import com.google.firebase.auth.FirebaseAuth
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -59,7 +60,12 @@ class ApplicationModule(private val application: AndroidApplication) {
     @Singleton
     fun provideEncryptedStorageManager() = EncryptedStorageManager(application)
 
+    //TODO create a instance of FirebaseAuth()
     @Provides
     @Singleton
-    fun provideFirebaseAuthManager() = FirebaseAuthManager()
+    fun provideFirebaseAuth() = FirebaseAuth.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAuthManager(auth: FirebaseAuth) = FirebaseAuthManager(auth)
 }
