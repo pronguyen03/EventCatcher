@@ -11,6 +11,9 @@ buildscript {
     ext.leak_canary_version = "2.2"
     ext.lifecycle_version = "2.2.0"
     ext.arch_version = "2.1.0"
+    ext.firebase_analytics_version = "17.2.3"
+    ext.firebase_auth_version = "19.3.0"
+    ext.google_sign_in_version = "17.0.0"
 
     repositories {
         google()

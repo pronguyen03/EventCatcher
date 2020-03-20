@@ -119,5 +119,11 @@ dependencies {
     testImplementation "androidx.arch.core:core-testing:$arch_version"
 
     // Firebase SDK for Google Analytics
-    implementation 'com.google.firebase:firebase-analytics:17.2.3'
+    implementation "com.google.firebase:firebase-analytics:$firebase_analytics_version"
+
+    // Firebase Authentication
+    implementation "com.google.firebase:firebase-auth:$firebase_auth_version"
+
+    // Google Sign In
+    implementation "com.google.android.gms:play-services-auth:$google_sign_in_version"
 }

@@ -7,5 +7,5 @@ import me.linhthengo.androiddddarchitechture.core.di.DaggerApplicationComponent
 
 class AndroidApplication : DaggerApplication() {
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> =
-        DaggerApplicationComponent.builder().build()
+        DaggerApplicationComponent.create()
 }

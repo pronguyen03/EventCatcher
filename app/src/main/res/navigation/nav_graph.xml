@@ -9,7 +9,7 @@
         android:label="HomeFragment" />
     <fragment
         android:id="@+id/splashFragment"
-        android:name="me.linhthengo.androiddddarchitechture.presentation.SplashFragment"
+        android:name="me.linhthengo.androiddddarchitechture.presentation.splash.SplashFragment"
         android:label="SplashFragment">
         <action
             android:id="@+id/action_splashFragment_to_homeFragment"
