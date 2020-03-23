@@ -1,24 +1,24 @@
 package me.linhthengo.androiddddarchitechture.domain.core
 
+import android.util.Patterns.EMAIL_ADDRESS
 import arrow.core.Either
+import arrow.core.Left
+import arrow.core.Right
 
 object ValueValidator {
     fun validateEmailAddress(input: String): Either<ValueFailures<String>, String> {
-        val regex = """
-            /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))${'$'}/
-        """.trimIndent().toRegex()
-        return if (regex.matches(input)) {
-            Either.right(input)
+        return if (EMAIL_ADDRESS.matcher(input).matches()) {
+            Right(input)
         } else {
-            Either.left(ValueFailures.InvalidEmail(failureValue = input))
+            Left(ValueFailures.InvalidEmail(failureValue = input))
         }
     }
 
     fun validatePassword(input: String): Either<ValueFailures<String>, String> {
         return if (input.length >= 6) {
-            Either.right(input)
+            Right(input)
         } else {
-            Either.left(ValueFailures.ShortPassword(failureValue = input))
+            Left(ValueFailures.ShortPassword(failureValue = input))
         }
     }
 }

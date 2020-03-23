@@ -27,7 +27,7 @@ class SplashFragment : BaseFragment() {
             if (user != null) {
                 findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
             } else {
-                findNavController().navigate(R.id.action_signInFragment_to_signUpFragment)
+                findNavController().navigate(R.id.action_splashFragment_to_signInFragment)
             }
         }
     }

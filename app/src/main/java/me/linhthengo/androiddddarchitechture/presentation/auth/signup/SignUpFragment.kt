@@ -1,4 +1,4 @@
-package me.linhthengo.androiddddarchitechture.presentation.auth
+package me.linhthengo.androiddddarchitechture.presentation.auth.signup
 
 import me.linhthengo.androiddddarchitechture.R
 import me.linhthengo.androiddddarchitechture.core.platform.BaseFragment

@@ -130,6 +130,15 @@ dependencies {
     // Coroutines support for firebase operations
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$play_service_coroutine_version"
 
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation "androidx.fragment:fragment-ktx:1.2.3"
+    // Lifecycle extension
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_extension_version"
+
+    // Fragment extension
+    implementation "androidx.fragment:fragment-ktx:$fragment_ktx_version"
+
+    // Timber - Better logger
+    implementation "com.jakewharton.timber:timber:$timber_version"
+
+    // Material Component
+    implementation "com.google.android.material:material:$material_version"
 }
