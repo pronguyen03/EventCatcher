@@ -1,6 +1,7 @@
 package me.linhthengo.androiddddarchitechture.presentation.splash
 
 import android.widget.Toast
+import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -23,12 +24,11 @@ class SplashFragment : BaseFragment() {
             val user = firebaseAuthManager.getCurrentUser()
             Toast.makeText(context, "Loading finished", Toast.LENGTH_SHORT)
                 .show()
-            //TODO continue to handle
-//            if (user != null) {
-//                findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
-//            } else {
-//                findNavController().navigate(R.id.action_signInFragment_to_signUpFragment)
-//            }
+            if (user != null) {
+                findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
+            } else {
+                findNavController().navigate(R.id.action_signInFragment_to_signUpFragment)
+            }
         }
     }
 }

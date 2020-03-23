@@ -77,7 +77,7 @@ dependencies {
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
 
     // Security - Encrypted Storage
-    implementation "androidx.security:security-crypto:1.0.0-alpha02"
+    implementation 'androidx.security:security-crypto:1.0.0-beta01'
 
     // Retrofit - Network client
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
@@ -126,4 +126,10 @@ dependencies {
 
     // Google Sign In
     implementation "com.google.android.gms:play-services-auth:$google_sign_in_version"
+
+    // Coroutines support for firebase operations
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$play_service_coroutine_version"
+
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation "androidx.fragment:fragment-ktx:1.2.3"
 }

@@ -5,7 +5,6 @@ import com.google.firebase.auth.FirebaseUser
 
 class FirebaseAuthManager(val auth: FirebaseAuth) {
 
-    //TODO Don't create an instance of auth, should move it to Dagger
     fun getCurrentUser() = auth.currentUser
 
     fun getUpdateUser(user: FirebaseUser) = auth.updateCurrentUser(user)

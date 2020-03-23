@@ -20,7 +20,7 @@
     </fragment>
     <fragment
         android:id="@+id/signInFragment"
-        android:name="me.linhthengo.androiddddarchitechture.presentation.auth.SignInFragment"
+        android:name="me.linhthengo.androiddddarchitechture.presentation.auth.signin.SignInFragment"
         android:label="SignInFragment">
         <action
             android:id="@+id/action_signInFragment_to_signUpFragment"
