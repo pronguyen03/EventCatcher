@@ -1,12 +1,14 @@
 package me.linhthengo.androiddddarchitechture.core.di
 
 import android.content.Context
+import com.google.firebase.auth.FirebaseAuth
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import me.linhthengo.androiddddarchitechture.AndroidApplication
 import me.linhthengo.androiddddarchitechture.BuildConfig
 import me.linhthengo.androiddddarchitechture.utils.EncryptedStorageManager
+import me.linhthengo.androiddddarchitechture.utils.FirebaseAuthManager
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -56,7 +58,14 @@ class ApplicationModule(private val application: AndroidApplication) {
 
     @Provides
     @Singleton
-    fun provideEncryptedStorageManager(): EncryptedStorageManager {
-        return EncryptedStorageManager(application)
-    }
+    fun provideEncryptedStorageManager() = EncryptedStorageManager(application)
+
+    //TODO create a instance of FirebaseAuth()
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth() = FirebaseAuth.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAuthManager(auth: FirebaseAuth) = FirebaseAuthManager(auth)
 }

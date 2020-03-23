@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "584255060578",
+    "firebase_url": "https://android-ddd-architechture.firebaseio.com",
+    "project_id": "android-ddd-architechture",
+    "storage_bucket": "android-ddd-architechture.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:584255060578:android:81319db8fdfaf1c1f4ef3b",
+        "android_client_info": {
+          "package_name": "me.linhthengo.androiddddarchitechture"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "584255060578-u38oghm5gqrct5i4l2ef78div8qbipd5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "me.linhthengo.androiddddarchitechture",
+            "certificate_hash": "9194d986c27baca9b4fd8f3b09c273b5defa862c"
+          }
+        },
+        {
+          "client_id": "584255060578-i56nghjn1vj2050ccdit6ars5qd423qe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgWegyNHSM8XrghDDaSAZW-jaQTN_ka64"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "584255060578-i56nghjn1vj2050ccdit6ars5qd423qe.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

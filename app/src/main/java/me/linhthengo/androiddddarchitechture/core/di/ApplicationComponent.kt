@@ -5,6 +5,7 @@ import dagger.android.AndroidInjectionModule
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
 import me.linhthengo.androiddddarchitechture.AndroidApplication
+import me.linhthengo.androiddddarchitechture.core.di.viewmodel.ViewModelModule
 import javax.inject.Singleton
 
 @Singleton
@@ -13,8 +14,8 @@ import javax.inject.Singleton
         ApplicationModule::class,
         AndroidInjectionModule::class,
         AndroidSupportInjectionModule::class,
-        ActivityModule::class,
-        FragmentModule::class
+        ActivityBuilder::class,
+        ViewModelModule::class
     ]
 )
 interface ApplicationComponent : AndroidInjector<AndroidApplication>

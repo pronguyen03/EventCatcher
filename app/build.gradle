@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs"
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 29
@@ -76,7 +77,7 @@ dependencies {
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
 
     // Security - Encrypted Storage
-    implementation "androidx.security:security-crypto:1.0.0-alpha02"
+    implementation 'androidx.security:security-crypto:1.0.0-beta01'
 
     // Retrofit - Network client
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
@@ -92,4 +93,52 @@ dependencies {
 
     // LeadCanary - Find the leaks
     debugImplementation "com.squareup.leakcanary:leakcanary-android:$leak_canary_version"
+
+    // ViewModel
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+
+    // Saved state module for ViewModel
+    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version"
+
+    // LiveData
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+
+    // Helpers for implementing LifecycleOwner in a Service
+    implementation "androidx.lifecycle:lifecycle-service:$lifecycle_version"
+
+    // Using Java8, use the following instead of lifecycle-compiler
+    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
+
+    // ProcessLifecycleOwner provides a lifecycle for the whole application process
+    implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
+
+    // ReactiveStreams support for LiveData
+    implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
+
+    // Test helpers for LiveData
+    testImplementation "androidx.arch.core:core-testing:$arch_version"
+
+    // Firebase SDK for Google Analytics
+    implementation "com.google.firebase:firebase-analytics:$firebase_analytics_version"
+
+    // Firebase Authentication
+    implementation "com.google.firebase:firebase-auth:$firebase_auth_version"
+
+    // Google Sign In
+    implementation "com.google.android.gms:play-services-auth:$google_sign_in_version"
+
+    // Coroutines support for firebase operations
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$play_service_coroutine_version"
+
+    // Lifecycle extension
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_extension_version"
+
+    // Fragment extension
+    implementation "androidx.fragment:fragment-ktx:$fragment_ktx_version"
+
+    // Timber - Better logger
+    implementation "com.jakewharton.timber:timber:$timber_version"
+
+    // Material Component
+    implementation "com.google.android.material:material:$material_version"
 }
