@@ -14,6 +14,7 @@ import me.linhthengo.androiddddarchitechture.core.platform.BaseFragment
 import me.linhthengo.androiddddarchitechture.domain.auth.EmailAddress
 import me.linhthengo.androiddddarchitechture.domain.auth.Password
 import me.linhthengo.androiddddarchitechture.domain.core.ValueFailures
+import timber.log.Timber
 
 class SignInFragment : BaseFragment() {
     override fun layoutId(): Int = R.layout.sign_in_fragment
@@ -38,7 +39,9 @@ class SignInFragment : BaseFragment() {
         }
 
         btn_sign_in.setOnClickListener {
-            if (!tv_email.editText?.error.isNullOrBlank() && !tv_password.editText?.error.isNullOrBlank()) {
+            Timber.tag(this::class.java.name).e("sign in clicked")
+            if (tv_email.editText!!.error.isNullOrBlank() && tv_password.editText!!.error.isNullOrBlank()) {
+                Timber.tag(this::class.java.name).e("sign in")
                 signInViewModel.signIn(
                     tv_email.editText?.text.toString(),
                     tv_password.editText?.text.toString()
