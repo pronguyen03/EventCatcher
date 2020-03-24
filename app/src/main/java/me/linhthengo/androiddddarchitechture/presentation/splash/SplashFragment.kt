@@ -1,9 +1,8 @@
 package me.linhthengo.androiddddarchitechture.presentation.splash
 
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.linhthengo.androiddddarchitechture.R
@@ -19,7 +18,7 @@ class SplashFragment : BaseFragment() {
     override fun layoutId(): Int = R.layout.splash_fragment
 
     init {
-        CoroutineScope(Dispatchers.Main).launch {
+        lifecycleScope.launch {
             delay(3000)
             val user = firebaseAuthManager.getCurrentUser()
             Toast.makeText(context, "Loading finished", Toast.LENGTH_SHORT)
