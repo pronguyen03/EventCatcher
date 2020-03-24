@@ -44,11 +44,18 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
         android:id="@+id/btn_sign_in"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/large_space"
         android:layout_gravity="center"
+        android:background="@drawable/circular_border_shape"
+        android:textColor="@color/white"
+        app:finalCornerAngle="32dp"
+        app:initialCornerAngle="32dp"
+        app:spinning_bar_color="@color/white"
+        app:spinning_bar_padding="6dp"
         android:text="@string/sign_in" />
 
     <TextView

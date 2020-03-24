@@ -141,4 +141,7 @@ dependencies {
 
     // Material Component
     implementation "com.google.android.material:material:$material_version"
+
+    // Progress Button
+    implementation 'br.com.simplepass:loading-button-android:2.2.0'
 }
