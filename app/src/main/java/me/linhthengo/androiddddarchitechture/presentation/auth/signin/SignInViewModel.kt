@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 class SignInViewModel @Inject constructor(val signIn: SignIn) : BaseViewModel() {
     fun signIn(email: String, password: String, onSuccess: () -> Unit) = viewModelScope.launch {
-        signIn(SignIn.Params(email, password)) {
+        signIn(SignIn.Params(email, password), this) {
             it.fold(::handleFailure) { firebaseUser ->
                 Timber.tag(TAG).d(firebaseUser.displayName)
                 onSuccess()
