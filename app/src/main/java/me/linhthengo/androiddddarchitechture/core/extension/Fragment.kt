@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.View
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.LifecycleOwner
 import kotlinx.android.synthetic.main.activity_main.*
 import me.linhthengo.androiddddarchitechture.core.platform.BaseActivity
 import me.linhthengo.androiddddarchitechture.core.platform.BaseFragment
@@ -22,3 +23,5 @@ fun BaseFragment.close() = activity?.supportFragmentManager?.popBackStack()
 val BaseFragment.viewContainer: View get() = (activity as BaseActivity).nav_host
 
 val BaseFragment.appContext: Context get() = activity?.applicationContext!!
+
+val BaseFragment.lifeCycleOwner: LifecycleOwner get() = activity as LifecycleOwner

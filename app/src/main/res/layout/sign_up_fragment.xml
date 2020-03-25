@@ -60,11 +60,29 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
         android:id="@+id/btn_sign_up"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="@dimen/large_space"
+        android:layout_marginVertical="@dimen/normal_space"
+        android:background="@drawable/btn_circular_border_shape"
+        android:text="@string/sign_up"
+        android:textColor="@color/white"
+        app:finalCornerAngle="32dp"
+        app:initialCornerAngle="32dp"
+        app:spinning_bar_color="@color/white"
+        app:spinning_bar_padding="6dp" />
+
+    <Button
+        android:id="@+id/btn_back"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/sign_up" />
+        android:background="@drawable/btn_bg_white"
+        android:text="@string/back"
+        android:textColor="@color/colorPrimary" />
 
 </LinearLayout>

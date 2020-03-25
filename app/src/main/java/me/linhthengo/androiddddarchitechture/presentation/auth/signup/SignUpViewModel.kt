@@ -1,38 +1,28 @@
 package me.linhthengo.androiddddarchitechture.presentation.auth.signup
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.launch
 import me.linhthengo.androiddddarchitechture.aplication.auth.SignUp
 import me.linhthengo.androiddddarchitechture.core.Failure
-import me.linhthengo.androiddddarchitechture.core.platform.BaseViewModel
+import me.linhthengo.androiddddarchitechture.presentation.auth.AuthViewModel
 import timber.log.Timber
 import javax.inject.Inject
 
-class SignUpViewModel @Inject constructor(val signUp: SignUp) : BaseViewModel() {
+class SignUpViewModel @Inject constructor(private val signUp: SignUp) : AuthViewModel() {
 
-    val state = MutableLiveData<State>()
-
-    sealed class State {
-        data class SignUpFailure(val message: String) : State()
-        object SignUpSuccess : State()
-        object SignUpLoading : State()
-    }
-
-    private fun handleFailure(failure: Failure) {
+    override fun handleFailure(failure: Failure) {
         Timber.tag(TAG).e(failure.message)
-        this.state.postValue(State.SignUpFailure(failure.message))
+        this.state.postValue(State.Failure(failure.message))
     }
 
-    private fun handleSuccess(firebaseUser: FirebaseUser) {
+    override fun handleSuccess(firebaseUser: FirebaseUser) {
         Timber.tag(TAG).d(firebaseUser.displayName)
-        this.state.postValue(State.SignUpSuccess)
+        this.state.postValue(State.Success)
     }
-
 
     fun signUp(email: String, password: String) = viewModelScope.launch {
-        state.postValue(State.SignUpLoading)
+        state.postValue(State.Loading)
         signUp(SignUp.Params(email, password), this) { it.fold(::handleFailure, ::handleSuccess) }
     }
 
