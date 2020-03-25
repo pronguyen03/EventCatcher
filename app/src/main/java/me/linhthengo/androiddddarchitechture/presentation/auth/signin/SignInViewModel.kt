@@ -20,7 +20,7 @@ class SignInViewModel @Inject constructor(val signIn: SignIn) : BaseViewModel() 
     var state = MutableLiveData<State>()
 
     private fun handleFailure(failure: Failure) {
-        Timber.tag(this::class.java.name).e(failure.message)
+        Timber.tag(TAG).e(failure.message)
         this.state.postValue(State.SignInFailure(failure.message))
     }
 
