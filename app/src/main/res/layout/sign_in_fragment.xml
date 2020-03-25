@@ -48,6 +48,7 @@
         android:id="@+id/btn_sign_in"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/normal_space"
         android:layout_marginHorizontal="@dimen/large_space"
         android:layout_gravity="center"
         android:background="@drawable/circular_border_shape"
@@ -65,6 +66,7 @@
         android:text="@string/or" />
 
     <LinearLayout
+        android:layout_margin="@dimen/normal_space"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center">
