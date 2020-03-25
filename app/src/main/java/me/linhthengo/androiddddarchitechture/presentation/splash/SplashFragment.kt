@@ -23,9 +23,9 @@ class SplashFragment : BaseFragment() {
             Toast.makeText(context, "Loading finished", Toast.LENGTH_SHORT)
                 .show()
             if (user != null) {
-                findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
+                findNavController().navigate(SplashFragmentDirections.actionSplashFragmentToHomeFragment())
             } else {
-                findNavController().navigate(R.id.action_splashFragment_to_signInFragment)
+                findNavController().navigate(SplashFragmentDirections.actionSplashFragmentToSignInFragment())
             }
         }
     }

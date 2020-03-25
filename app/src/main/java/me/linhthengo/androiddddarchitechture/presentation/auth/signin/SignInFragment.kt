@@ -80,7 +80,7 @@ class SignInFragment : BaseFragment() {
                         )!!.toBitmap()
                     )
                     delay(500)
-                    findNavController().navigate(R.id.action_signInFragment_to_homeFragment)
+                    activity?.onBackPressed()
                 }
             }
             is SignInViewModel.State.SignInLoading -> {
