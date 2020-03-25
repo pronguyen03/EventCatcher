@@ -11,6 +11,8 @@ import me.linhthengo.androiddddarchitechture.core.Failure
 
 class FirebaseAuthManager(val auth: FirebaseAuth) {
 
+    fun isLogin() = getCurrentUser() != null
+
     fun getCurrentUser() = auth.currentUser
 
     suspend fun getUpdateUser(user: FirebaseUser): Either<Failure, Unit> {

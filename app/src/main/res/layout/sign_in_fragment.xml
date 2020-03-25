@@ -51,7 +51,7 @@
         android:layout_marginVertical="@dimen/normal_space"
         android:layout_marginHorizontal="@dimen/large_space"
         android:layout_gravity="center"
-        android:background="@drawable/circular_border_shape"
+        android:background="@drawable/btn_circular_border_shape"
         android:textColor="@color/white"
         app:finalCornerAngle="32dp"
         app:initialCornerAngle="32dp"

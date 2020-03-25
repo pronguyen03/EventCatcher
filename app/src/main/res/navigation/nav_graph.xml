@@ -37,6 +37,10 @@
             app:destination="@id/signUpFragment"
             app:enterAnim="@anim/slide_in_right"
             app:popEnterAnim="@anim/slide_in_right" />
+        <action
+            android:id="@+id/action_signInFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:enterAnim="@anim/scale_out" />
     </fragment>
     <fragment
         android:id="@+id/signUpFragment"
