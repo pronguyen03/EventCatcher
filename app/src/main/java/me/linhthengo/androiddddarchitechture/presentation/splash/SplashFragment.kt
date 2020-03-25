@@ -4,7 +4,6 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import me.linhthengo.androiddddarchitechture.R
 import me.linhthengo.androiddddarchitechture.core.platform.BaseFragment
 import me.linhthengo.androiddddarchitechture.utils.FirebaseAuthManager
@@ -18,15 +17,15 @@ class SplashFragment : BaseFragment() {
     override fun layoutId(): Int = R.layout.splash_fragment
 
     init {
-        lifecycleScope.launch {
+        lifecycleScope.launchWhenStarted {
             delay(3000)
             val user = firebaseAuthManager.getCurrentUser()
             Toast.makeText(context, "Loading finished", Toast.LENGTH_SHORT)
                 .show()
             if (user != null) {
-                findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
+                findNavController().navigate(SplashFragmentDirections.actionSplashFragmentToHomeFragment())
             } else {
-                findNavController().navigate(R.id.action_splashFragment_to_signInFragment)
+                findNavController().navigate(SplashFragmentDirections.actionSplashFragmentToSignInFragment())
             }
         }
     }
