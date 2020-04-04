@@ -7,6 +7,7 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 import me.linhthengo.androiddddarchitechture.presentation.auth.signin.SignInViewModel
 import me.linhthengo.androiddddarchitechture.presentation.auth.signup.SignUpViewModel
+import me.linhthengo.androiddddarchitechture.presentation.home.HomeViewModel
 
 @Module
 abstract class ViewModelModule {
@@ -23,5 +24,9 @@ abstract class ViewModelModule {
     @ViewModelKey(SignUpViewModel::class)
     internal abstract fun signUpViewModel(viewModel: SignUpViewModel): ViewModel
 
+    @Binds
+    @IntoMap
+    @ViewModelKey(HomeViewModel::class)
+    internal abstract fun homeViewModel(viewModel: HomeViewModel): ViewModel
     //Add more ViewModels here
 }
