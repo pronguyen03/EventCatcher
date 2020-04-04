@@ -12,6 +12,8 @@ class SignIn @Inject constructor(private val firebaseAuthManager: FirebaseAuthMa
 
     data class Params(val email: String, val password: String)
 
+
     override suspend fun run(params: Params): Either<Failure, FirebaseUser> =
         firebaseAuthManager.signInWithEmail(params.email, params.password)
+
 }

@@ -1,5 +1,7 @@
 package me.linhthengo.androiddddarchitechture.presentation.auth.signin
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat.getDrawable
@@ -7,19 +9,35 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import kotlinx.android.synthetic.main.sign_in_fragment.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import me.linhthengo.androiddddarchitechture.R
 import me.linhthengo.androiddddarchitechture.presentation.auth.AuthFragment
 import me.linhthengo.androiddddarchitechture.presentation.auth.AuthViewModel
+import me.linhthengo.androiddddarchitechture.presentation.auth.signin.SignInViewModel.Companion.GOOGLE_SIGN_IN_REQUEST_CODE
+
 
 class SignInFragment : AuthFragment() {
+
+    lateinit var googleSignInClient: GoogleSignInClient
+
     override fun layoutId(): Int = R.layout.sign_in_fragment
 
     override fun handleAuthState(state: AuthViewModel.State) = handleSignIn(state)
 
     override val authViewModel by viewModels<SignInViewModel>(factoryProducer = { viewModelFactory })
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        configureGoogleSignIn()
+    }
+
+    private fun configureGoogleSignIn() {
+        googleSignInClient = authViewModel.getGoogleSignInClient()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -37,6 +55,21 @@ class SignInFragment : AuthFragment() {
             } else {
                 handleEmail(tv_email.editText?.text.toString())
                 handlePassword(tv_password.editText?.text.toString())
+            }
+        }
+
+        btn_sign_in_with_google.setOnClickListener {
+            val signInIntent = googleSignInClient.signInIntent
+            startActivityForResult(signInIntent, GOOGLE_SIGN_IN_REQUEST_CODE)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == GOOGLE_SIGN_IN_REQUEST_CODE) {
+            runBlocking {
+                val googleSignInAccount = authViewModel.getSignedInAccountFromIntent(data).await()
+                googleSignInAccount?.let { authViewModel.signInWithGoogle(it) }
             }
         }
     }
