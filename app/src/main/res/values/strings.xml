@@ -1,7 +1,8 @@
 <resources>
-    <string name="app_name">Android DDD architechture</string>
+    <string name="app_name">Android DDD architecture</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
+    <string name="search">Search event, places, ...</string>
     <string name="sign_in">Sign In</string>
     <string name="or">or</string>
     <string name="don_t_have_an_account">Don\'t have an account?</string>
@@ -16,4 +17,6 @@
     <string name="back">Back</string>
     <string name="sign_in_successfully">Sign In Successfully</string>
     <string name="empty">Empty</string>
+    <string name="enter_event_places">Enter Event, Places,...</string>
+    <string name="todo">TODO</string>
 </resources>
