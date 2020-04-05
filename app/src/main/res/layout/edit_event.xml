@@ -10,53 +10,53 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="@dimen/normal_space"
-        android:src="@drawable/logo" />
+        android:src="@drawable/edit_event" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tv_email"
+        android:id="@+id/event_name"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/normal_space"
-        android:hint="@string/email"
+        android:hint="Event"
         app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress" />
+            android:inputType="text" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tv_password"
+        android:id="@+id/event_time"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/normal_space"
-        android:hint="@string/password"
+        android:hint="Begin time"
         app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPassword" />
+            android:inputType="datetime" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tv_confirm_password"
+        android:id="@+id/event_location"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/normal_space"
-        android:hint="@string/confirm_password"
+        android:hint="Location"
         app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPassword" />
+            android:inputType="text" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -68,7 +68,7 @@
         android:layout_marginHorizontal="@dimen/large_space"
         android:layout_marginVertical="@dimen/normal_space"
         android:background="@drawable/btn_circular_border_shape"
-        android:text="@string/sign_up"
+        android:text="Save"
         android:textColor="@color/white"
         app:finalCornerAngle="32dp"
         app:initialCornerAngle="32dp"
