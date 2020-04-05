@@ -67,5 +67,6 @@ class ApplicationModule(private val application: AndroidApplication) {
 
     @Provides
     @Singleton
-    fun provideFirebaseAuthManager(auth: FirebaseAuth) = FirebaseAuthManager(auth)
+    fun provideFirebaseAuthManager(auth: FirebaseAuth, context: Context) = FirebaseAuthManager(auth, context)
+
 }

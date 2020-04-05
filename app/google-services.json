@@ -1,42 +1,34 @@
 {
   "project_info": {
-    "project_number": "584255060578",
-    "firebase_url": "https://android-ddd-architechture.firebaseio.com",
-    "project_id": "android-ddd-architechture",
-    "storage_bucket": "android-ddd-architechture.appspot.com"
+    "project_number": "936706181603",
+    "firebase_url": "https://eventcatcher-27c15.firebaseio.com",
+    "project_id": "eventcatcher-27c15",
+    "storage_bucket": "eventcatcher-27c15.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:584255060578:android:81319db8fdfaf1c1f4ef3b",
+        "mobilesdk_app_id": "1:936706181603:android:e363654162d4918cb978d6",
         "android_client_info": {
           "package_name": "me.linhthengo.androiddddarchitechture"
         }
       },
       "oauth_client": [
         {
-          "client_id": "584255060578-u38oghm5gqrct5i4l2ef78div8qbipd5.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "me.linhthengo.androiddddarchitechture",
-            "certificate_hash": "9194d986c27baca9b4fd8f3b09c273b5defa862c"
-          }
-        },
-        {
-          "client_id": "584255060578-i56nghjn1vj2050ccdit6ars5qd423qe.apps.googleusercontent.com",
+          "client_id": "936706181603-5oh5uerb1l5g6bag40065la8keq5tovb.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDgWegyNHSM8XrghDDaSAZW-jaQTN_ka64"
+          "current_key": "AIzaSyCB3RfKQHFR91ez45V4Ld43n86kdrCZWig"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "584255060578-i56nghjn1vj2050ccdit6ars5qd423qe.apps.googleusercontent.com",
+              "client_id": "936706181603-5oh5uerb1l5g6bag40065la8keq5tovb.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

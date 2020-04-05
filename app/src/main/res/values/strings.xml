@@ -1,9 +1,14 @@
 <resources>
+<<<<<<< HEAD
     <string name="app_name">Android DDD architecture</string>
+=======
+    <string name="app_name">Event Catcher</string>
+>>>>>>> b27278a733a51412ecdaa1c7bb342686596fbd08
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="search">Search event, places, ...</string>
     <string name="sign_in">Sign In</string>
+    <string name="sign_in_with_google">Sign In With Google</string>
     <string name="or">or</string>
     <string name="don_t_have_an_account">Don\'t have an account?</string>
     <string name="sign_up">Sign up</string>
@@ -17,6 +22,10 @@
     <string name="back">Back</string>
     <string name="sign_in_successfully">Sign In Successfully</string>
     <string name="empty">Empty</string>
+<<<<<<< HEAD
     <string name="enter_event_places">Enter Event, Places,...</string>
     <string name="todo">TODO</string>
+=======
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCB3RfKQHFR91ez45V4Ld43n86kdrCZWig</string>
+>>>>>>> b27278a733a51412ecdaa1c7bb342686596fbd08
 </resources>
