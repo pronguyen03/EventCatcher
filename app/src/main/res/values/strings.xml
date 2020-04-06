@@ -2,7 +2,7 @@
     <string name="app_name">Event Catcher</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
-    <string name="search">Search event, places, ...</string>
+    <string name="search">Search event, places,…</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_in_with_google">Sign In With Google</string>
     <string name="or">or</string>
@@ -18,8 +18,13 @@
     <string name="back">Back</string>
     <string name="sign_in_successfully">Sign In Successfully</string>
     <string name="empty">Empty</string>
-    <string name="enter_event_places">Enter Event, Places,...</string>
+    <string name="enter_event_places">Enter Event, Places,…</string>
     <string name="todo">TODO</string>
-=======
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCB3RfKQHFR91ez45V4Ld43n86kdrCZWig</string>
+    <string name="help_name">Help Name</string>
+    <string name="help_des">Help Description</string>
+    <string name="post_help">Post Help</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+>>>>>>> 61d81514a71888f011d5a5e70be9b1524450c960
 </resources>
