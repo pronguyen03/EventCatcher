@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Android DDD architechture</string>
+    <string name="app_name">Event Catcher</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="sign_in">Sign In</string>
@@ -16,4 +16,9 @@
     <string name="back">Back</string>
     <string name="sign_in_successfully">Sign In Successfully</string>
     <string name="empty">Empty</string>
+    <string name="help_name">Help Name</string>
+    <string name="help_des">Help Description</string>
+    <string name="post_help">Post Help</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
 </resources>
