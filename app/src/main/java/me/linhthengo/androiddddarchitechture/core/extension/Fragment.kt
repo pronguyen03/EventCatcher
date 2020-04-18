@@ -2,6 +2,7 @@ package me.linhthengo.androiddddarchitechture.core.extension
 
 import android.content.Context
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.LifecycleOwner
@@ -20,7 +21,7 @@ inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> Fragmen
 
 fun BaseFragment.close() = activity?.supportFragmentManager?.popBackStack()
 
-val BaseFragment.viewContainer: View get() = (activity as BaseActivity).nav_host
+val BaseFragment.viewContainer: Fragment get() = (activity as BaseActivity).nav_host
 
 val BaseFragment.appContext: Context get() = activity?.applicationContext!!
 

@@ -28,23 +28,23 @@ abstract class BaseFragment : DaggerFragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    internal fun notify(@StringRes message: Int) =
-        Snackbar.make(viewContainer, message, Snackbar.LENGTH_SHORT).show()
+//    internal fun notify(@StringRes message: Int) =
+//        Snackbar.make(viewContainer, message, Snackbar.LENGTH_SHORT).show()
 
     internal fun notifyWithAction(
         @StringRes message: Int,
         @StringRes actionText: Int,
         action: () -> Any
     ) {
-        val snackBar = Snackbar.make(viewContainer, message, Snackbar.LENGTH_INDEFINITE)
-        snackBar.setAction(actionText) { _ -> action.invoke() }
-        snackBar.setActionTextColor(
-            ContextCompat.getColor(
-                appContext,
-                R.color.colorTextPrimary
-            )
-        )
-        snackBar.show()
+//        val snackBar = Snackbar.make(viewContainer, message, Snackbar.LENGTH_INDEFINITE)
+//        snackBar.setAction(actionText) { _ -> action.invoke() }
+//        snackBar.setActionTextColor(
+//            ContextCompat.getColor(
+//                appContext,
+//                R.color.colorTextPrimary
+//            )
+//        )
+//        snackBar.show()
     }
 
     internal fun showErrorDialog(message: String, onCloseClicked: () -> Unit) {

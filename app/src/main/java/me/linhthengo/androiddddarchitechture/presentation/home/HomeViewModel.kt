@@ -32,4 +32,9 @@ class HomeViewModel @Inject constructor(private val signOut: SignOut) : BaseView
         this.state.postValue(State.Success)
     }
 
+    companion object {
+        const val REQUEST_LOCATION_CODE = 101
+        const val GPS_REQUEST_CODE = 9003
+    }
+
 }

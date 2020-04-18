@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.getDrawable
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.viewModels
@@ -18,6 +19,7 @@ import me.linhthengo.androiddddarchitechture.R
 import me.linhthengo.androiddddarchitechture.presentation.auth.AuthFragment
 import me.linhthengo.androiddddarchitechture.presentation.auth.AuthViewModel
 import me.linhthengo.androiddddarchitechture.presentation.auth.signin.SignInViewModel.Companion.GOOGLE_SIGN_IN_REQUEST_CODE
+import java.lang.Exception
 
 
 class SignInFragment : AuthFragment() {
@@ -32,6 +34,7 @@ class SignInFragment : AuthFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        (activity as AppCompatActivity).supportActionBar?.hide()
         configureGoogleSignIn()
     }
 
@@ -59,8 +62,11 @@ class SignInFragment : AuthFragment() {
         }
 
         btn_sign_in_with_google.setOnClickListener {
+            btn_sign_in_with_google.startAnimation()
             val signInIntent = googleSignInClient.signInIntent
-            startActivityForResult(signInIntent, GOOGLE_SIGN_IN_REQUEST_CODE)
+            signInIntent?.run {
+                startActivityForResult(signInIntent, GOOGLE_SIGN_IN_REQUEST_CODE)
+            }
         }
     }
 
@@ -68,8 +74,12 @@ class SignInFragment : AuthFragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == GOOGLE_SIGN_IN_REQUEST_CODE) {
             runBlocking {
-                val googleSignInAccount = authViewModel.getSignedInAccountFromIntent(data).await()
-                googleSignInAccount?.let { authViewModel.signInWithGoogle(it) }
+                try {
+                    val googleSignInAccount = authViewModel.getSignedInAccountFromIntent(data).await()
+                    googleSignInAccount?.let { authViewModel.signInWithGoogle(it) }
+                } catch (e: Exception) {
+                    btn_sign_in_with_google.revertAnimation()
+                }
             }
         }
     }

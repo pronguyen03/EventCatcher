@@ -32,7 +32,10 @@ class FirebaseAuthManager(val auth: FirebaseAuth, context: Context) {
         }
     }
 
-    fun signOut() = auth.signOut()
+    fun signOut() {
+        googleSignInClient.signOut()
+        auth.signOut()
+    }
 
     suspend fun register(email: String, password: String): Either<Failure, FirebaseUser> {
         try {

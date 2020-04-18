@@ -1,6 +1,8 @@
 package me.linhthengo.androiddddarchitechture.presentation.splash
 
+import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.delay
@@ -15,6 +17,13 @@ class SplashFragment : BaseFragment() {
     lateinit var firebaseAuthManager: FirebaseAuthManager
 
     override fun layoutId(): Int = R.layout.splash_fragment
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        (activity as AppCompatActivity).supportActionBar?.hide()
+    }
+
 
     init {
         lifecycleScope.launchWhenStarted {

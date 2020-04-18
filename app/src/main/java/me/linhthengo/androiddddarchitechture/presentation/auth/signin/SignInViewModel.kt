@@ -61,6 +61,6 @@ class SignInViewModel @Inject constructor(
 
     companion object {
         const val TAG = "SignInVM"
-        const val GOOGLE_SIGN_IN_REQUEST_CODE = 0
+        const val GOOGLE_SIGN_IN_REQUEST_CODE = 9001
     }
 }
