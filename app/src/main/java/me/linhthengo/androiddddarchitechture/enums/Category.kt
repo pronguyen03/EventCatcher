@@ -1,4 +1,4 @@
-package me.linhthengo.androiddddarchitechture
+package me.linhthengo.androiddddarchitechture.enums
 
 enum class Category {
     ART,

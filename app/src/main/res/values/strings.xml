@@ -26,5 +26,21 @@
     <string name="post_help">Post Help</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
->>>>>>> 61d81514a71888f011d5a5e70be9b1524450c960
+    <string name="appbar_scrolling_view_behavior">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
+    <string name="your_place">Your Place</string>
+    <string name="your_profile">Your Profile</string>
+    <string name="discover_place">Discover Place</string>
+    <string name="your_events">Your Events</string>
+    <string name="setting">Setting</string>
+    <string name="feedback">Feedback</string>
+    <string name="tutorial">Tutorial</string>
+    <string name="log_out">Log Out</string>
+    <string name="enter_location">Enter Location</string>
+    <string name="explore_events">Explore Events</string>
+    <string name="upcoming_event">Upcoming Event</string>
+    <string name="ongoing_event">Ongoing Event</string>
+    <string name="scope">Scope</string>
+    <string name="explore">Explore</string>
+    <string name="_100">100</string>
+    <string name="start_date">Start Date</string>
 </resources>

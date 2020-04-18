@@ -2,10 +2,6 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/current_location"
-            android:icon="@drawable/ic_your_place"
-            android:title="@string/your_place" />
-        <item
             android:id="@+id/profile"
             android:icon="@drawable/ic_user"
             android:title="@string/your_profile" />
@@ -16,7 +12,7 @@
         <item
             android:id="@+id/discover_event"
             android:icon="@drawable/ic_event_black_24dp"
-            android:title="@string/my_events" />
+            android:title="@string/your_events" />
     </group>
 
     <group android:checkableBehavior="single">

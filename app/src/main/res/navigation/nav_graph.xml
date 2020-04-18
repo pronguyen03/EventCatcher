@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="me.linhthengo.androiddddarchitechture.presentation.home.HomeFragment"
-        android:label="HomeFragment"
+        android:label="@string/app_name"
         tools:layout="@layout/fragment_home" >
         <action
             android:id="@+id/action_homeFragment_to_signInFragment"
@@ -32,7 +32,7 @@
     <fragment
         android:id="@+id/signInFragment"
         android:name="me.linhthengo.androiddddarchitechture.presentation.auth.signin.SignInFragment"
-        android:label="SignInFragment"
+        android:label="Sign In"
         tools:layout="@layout/sign_in_fragment">
         <action
             android:id="@+id/action_signInFragment_to_signUpFragment"
@@ -47,6 +47,6 @@
     <fragment
         android:id="@+id/signUpFragment"
         android:name="me.linhthengo.androiddddarchitechture.presentation.auth.signup.SignUpFragment"
-        android:label="SignUpFragment"
+        android:label="Sign Up"
         tools:layout="@layout/sign_up_fragment" />
 </navigation>

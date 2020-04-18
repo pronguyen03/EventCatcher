@@ -1,29 +1,25 @@
 package me.linhthengo.androiddddarchitechture.presentation.home
 
-import android.Manifest
+import android.app.DatePickerDialog
+import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
-import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import android.widget.RelativeLayout
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -31,18 +27,21 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.*
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.api.model.TypeFilter
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.mancj.materialsearchbar.MaterialSearchBar
 import com.mancj.materialsearchbar.adapter.SuggestionsAdapter
+import kotlinx.android.synthetic.main.dialog_discover_event.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,17 +51,21 @@ import me.linhthengo.androiddddarchitechture.R
 import me.linhthengo.androiddddarchitechture.core.extension.appContext
 import me.linhthengo.androiddddarchitechture.core.extension.lifeCycleOwner
 import me.linhthengo.androiddddarchitechture.core.platform.BaseFragment
-import me.linhthengo.androiddddarchitechture.presentation.home.HomeViewModel.Companion.GPS_REQUEST_CODE
-import me.linhthengo.androiddddarchitechture.presentation.home.HomeViewModel.Companion.REQUEST_LOCATION_CODE
+import me.linhthengo.androiddddarchitechture.enums.Category
+import me.linhthengo.androiddddarchitechture.models.Event
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.coroutines.CoroutineContext
 
 
-class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
+class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
+    GoogleMap.OnInfoWindowClickListener {
     override val coroutineContext: CoroutineContext = Dispatchers.Main
 
     override fun layoutId(): Int = R.id.homeFragment
+
     companion object {
         const val DEFAULT_ZOOM = 15f
     }
@@ -76,11 +79,15 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
 
     private fun handleAuthState(state: HomeViewModel.State) = handleSignOut(state)
     private val authStateObserver = Observer<HomeViewModel.State> { handleAuthState(it) }
-    lateinit var fab_open: Animation
-    lateinit var fab_close: Animation
-    lateinit var rotate_cw: Animation
-    lateinit var rotate_acw: Animation
-    var isOpenFab: Boolean = false;
+    private lateinit var fabOpen: Animation
+    private lateinit var fabClose: Animation
+    private lateinit var rotateCw: Animation
+    private lateinit var rotateAcw: Animation
+    private var isOpenFab: Boolean = false
+
+    private var startDate = Calendar.getInstance()
+    private var endDate = Calendar.getInstance()
+    private val listEvents = mutableListOf<Event>();
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,22 +100,22 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                             .setTitle("Exit Application")
                             .setMessage("Are you sure you want to exit the app?")
                             .setPositiveButton(
-                                "Yes",
-                                DialogInterface.OnClickListener { dialog, which ->
-                                    activity?.finish()
-                                })
+                                "Yes"
+                            ) { _, _ ->
+                                activity?.finish()
+                            }
                             .setNegativeButton("No", null)
                             .show()
-                    };
+                    }
                 }
             }
         requireActivity().onBackPressedDispatcher.addCallback(this, callback)
 
         // Animation Floating Button
-        fab_open = AnimationUtils.loadAnimation(appContext, R.anim.open_fab)
-        fab_close = AnimationUtils.loadAnimation(appContext, R.anim.close_fab)
-        rotate_cw = AnimationUtils.loadAnimation(appContext, R.anim.rotate_clockwise)
-        rotate_acw = AnimationUtils.loadAnimation(appContext, R.anim.rotate_anticlockwise)
+        fabOpen = AnimationUtils.loadAnimation(appContext, R.anim.open_fab)
+        fabClose = AnimationUtils.loadAnimation(appContext, R.anim.close_fab)
+        rotateCw = AnimationUtils.loadAnimation(appContext, R.anim.rotate_clockwise)
+        rotateAcw = AnimationUtils.loadAnimation(appContext, R.anim.rotate_anticlockwise)
 
         mFusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -127,13 +134,6 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
     ): View {
         // Inflate the layout for this fragment
         val rootView: View = inflater.inflate(R.layout.fragment_home, container, false)
-
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-
-        mapFragment!!.getMapAsync(this)
-        mapFragment.view?.run{
-            mapView = this
-        }
 //        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
 //        val actionBar = (activity as AppCompatActivity).supportActionBar
         return rootView
@@ -141,34 +141,86 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
 
+        mapFragment!!.getMapAsync(this)
+        mapFragment.view?.run {
+            mapView = this
+        }
         fab_main.setOnClickListener {
             if (isOpenFab) {
-                fab_event.startAnimation(fab_close)
-                fab.startAnimation(fab_close)
-                fab_main.startAnimation(rotate_acw)
+                fab_event.startAnimation(fabClose)
+//                fab.startAnimation(fabClose)
+                fab_main.startAnimation(rotateAcw)
                 fab_event.visibility = View.GONE
-                fab.visibility = View.GONE
-                fab_main.setImageResource(R.drawable.ic_add_white_24dp)
+//                fab.visibility = View.GONE
+//                fab_main.setImageResource(R.drawable.ic_add_white_24dp)
                 isOpenFab = false
             } else {
-                fab_event.startAnimation(fab_open)
-                fab.startAnimation(fab_open)
-                fab_main.startAnimation(rotate_cw)
+                fab_event.startAnimation(fabOpen)
+//                fab.startAnimation(fabOpen)
+                fab_main.startAnimation(rotateCw)
                 fab_event.visibility = View.VISIBLE
-                fab.visibility = View.VISIBLE
-                fab_main.setImageResource(R.drawable.ic_close_white_24dp)
+//                fab.visibility = View.VISIBLE
+//                fab_main.setImageResource(R.drawable.ic_close_white_24dp)
                 isOpenFab = true
             }
         }
 
         fab_event.setOnClickListener {
-            Toast.makeText(appContext, "Show event Dialog", Toast.LENGTH_LONG).show()
+            val dialogEvent = Dialog(requireContext(), R.style.DialogTheme).apply {
+                setContentView(R.layout.dialog_discover_event)
+                btn_close_dialog_explore.setOnClickListener {
+                    dismiss()
+                }
+
+                sb_scope.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(
+                        seekBar: SeekBar?,
+                        progress: Int,
+                        fromUser: Boolean
+                    ) =
+                        if (progress >= 1) {
+                            tv_scope_value.text = "$progress kms"
+                        } else {
+                            tv_scope_value.text = "$progress km"
+                        }
+
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                    }
+
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                    }
+
+                })
+                val format = "MM/dd/yyyy"
+                val sdf = SimpleDateFormat(format, Locale.getDefault())
+                edt_start_date.setText(sdf.format(startDate.time))
+                val startDateCallback =
+                    DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
+                        startDate.set(Calendar.YEAR, year)
+                        startDate.set(Calendar.MONTH, month)
+                        startDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                        edt_start_date.setText(sdf.format(startDate.time))
+                    }
+                edt_start_date.setOnClickListener {
+                    val datePickerDialog = DatePickerDialog(
+                        requireActivity(),
+                        startDateCallback,
+                        startDate.get(Calendar.YEAR),
+                        startDate.get(Calendar.MONTH),
+                        startDate.get(Calendar.DAY_OF_MONTH)
+                    )
+                    datePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000
+                    datePickerDialog.show()
+                }
+
+            }.show()
         }
 
-        fab.setOnClickListener {
-            Toast.makeText(appContext, "Show Another Dialog", Toast.LENGTH_LONG).show()
-        }
+//        fab.setOnClickListener {
+//            Toast.makeText(appContext, "Show Another Dialog", Toast.LENGTH_LONG).show()
+//        }
 
         nvView.setNavigationItemSelectedListener {
             drawer_layout?.closeDrawer(GravityCompat.START)
@@ -182,14 +234,13 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
         }
         homeViewModel.state.observe(lifeCycleOwner, authStateObserver)
 
-
         val token = AutocompleteSessionToken.newInstance()
         searchBar.setOnSearchActionListener(object : MaterialSearchBar.OnSearchActionListener {
             override fun onButtonClicked(buttonCode: Int) {
                 if (buttonCode == MaterialSearchBar.BUTTON_NAVIGATION) {
                     drawer_layout.openDrawer(GravityCompat.START)
                 } else if (buttonCode == MaterialSearchBar.BUTTON_BACK) {
-                    searchBar.disableSearch();
+                    searchBar.disableSearch()
                     searchBar.clearSuggestions()
                     searchBar.hideSuggestionsList()
                 }
@@ -202,6 +253,7 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
 //                startSearch(text.toString(), true, null, true)
             }
         })
+
         searchBar.addTextChangeListener(object : TextWatcher {
             private var searchFor = ""
             override fun afterTextChanged(s: Editable?) {
@@ -229,24 +281,25 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                         .setQuery(s.toString())
                         .build()
 
-                    placesClient.findAutocompletePredictions(predictionsRequest).addOnCompleteListener {
-                        if (it.isSuccessful) {
-                            val predictionsResponse = it.getResult()
-                            predictionsResponse?.run {
-                                predictionList = predictionsResponse.autocompletePredictions
-                                val suggestionsList = ArrayList<String>()
-                                predictionList.forEach { prediction ->
-                                    suggestionsList.add(prediction.getFullText(null).toString())
+                    placesClient.findAutocompletePredictions(predictionsRequest)
+                        .addOnCompleteListener {
+                            if (it.isSuccessful) {
+                                val predictionsResponse = it.result
+                                predictionsResponse?.run {
+                                    predictionList = predictionsResponse.autocompletePredictions
+                                    val suggestionsList = ArrayList<String>()
+                                    predictionList.forEach { prediction ->
+                                        suggestionsList.add(prediction.getFullText(null).toString())
+                                    }
+                                    searchBar.updateLastSuggestions(suggestionsList)
+                                    if (!searchBar.isSuggestionsVisible) {
+                                        searchBar.showSuggestionsList()
+                                    }
                                 }
-                                searchBar.updateLastSuggestions(suggestionsList)
-                                if (!searchBar.isSuggestionsVisible) {
-                                    searchBar.showSuggestionsList()
-                                }
+                            } else {
+                                Timber.tag("mytag").i("prediction fetching task unsuccessful")
                             }
-                        } else {
-                            Timber.tag("mytag").i("prediction fetching task unsuccessful")
                         }
-                    }
                 }
 
             }
@@ -262,19 +315,19 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                 if (position >= predictionList.size) {
                     return
                 }
-                val selectedPrediction = predictionList.get(position)
-                val suggestion = searchBar.lastSuggestions.get(position).toString()
+                val selectedPrediction = predictionList[position]
+                val suggestion = searchBar.lastSuggestions[position].toString()
                 searchBar.text = suggestion
 
 
-                Handler().postDelayed( {
+                Handler().postDelayed({
                     searchBar.clearSuggestions()
                 }, 1000)
 
                 searchBar.clearSuggestions()
                 val imm =
                     requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm?.run {
+                imm.run {
                     hideSoftInputFromWindow(
                         searchBar.windowToken,
                         InputMethodManager.HIDE_IMPLICIT_ONLY
@@ -305,7 +358,11 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
             }
 
         })
+
+        //
+
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -351,61 +408,6 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
         inflater.inflate(R.menu.menu_toolbar, menu)
     }
 
-    private fun checkLocationPermission() {
-        context?.let {
-            if (ContextCompat.checkSelfPermission(
-                    it,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(
-                        requireActivity(),
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    )
-                ) {
-                    AlertDialog.Builder(it)
-                        .setTitle("Location Permission Needed")
-                        .setMessage("This app needs the Location permission, please accept to use location functionality")
-                        .setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
-                            ActivityCompat.requestPermissions(
-                                requireActivity(),
-                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                                REQUEST_LOCATION_CODE
-                            )
-                        })
-                        .create()
-                        .show()
-
-                } else ActivityCompat.requestPermissions(
-                    requireActivity(),
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                    REQUEST_LOCATION_CODE
-                )
-            }
-        }
-    }
-
-    private fun isGPSEnabled(): Boolean {
-        val locationManager: LocationManager =
-            activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val providerEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-
-        if (providerEnabled) {
-            return true;
-        } else {
-            val alertDialog = AlertDialog.Builder(requireContext())
-            alertDialog.setTitle("GPS Permission")
-                .setMessage("GPS is required for this app to work. Please enable GPS.")
-                .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
-                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                    startActivityForResult(intent, GPS_REQUEST_CODE)
-                })
-                .setCancelable(true)
-                .show()
-        }
-        return false;
-    }
-
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mMap.isMyLocationEnabled = true
@@ -415,13 +417,13 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
         mMap.clear() // clear old markers
 
         val parent = (mapView.findViewById<View>(Integer.parseInt("1")).parent as View)
-        val locationButton= parent.findViewById<View>(Integer.parseInt("2"))
-        val compassButton= parent.findViewById<View>(Integer.parseInt("5"))
-        val rlp= locationButton.layoutParams as (RelativeLayout.LayoutParams)
+        val locationButton = parent.findViewById<View>(Integer.parseInt("2"))
+        val compassButton = parent.findViewById<View>(Integer.parseInt("5"))
+        val rlp = locationButton.layoutParams as (RelativeLayout.LayoutParams)
         val rlpCommpass = compassButton.layoutParams as (RelativeLayout.LayoutParams)
         // position on right bottom
-        rlp.setMargins(0,215,0, 0);
-        rlpCommpass.setMargins(0,215,0,0)
+        rlp.setMargins(0, 215, 0, 0)
+        rlpCommpass.setMargins(0, 215, 0, 0)
         val googlePlex = CameraPosition.builder()
             .target(LatLng(16.138200, 108.120029))
             .zoom(15f)
@@ -429,6 +431,7 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
             .tilt(45f)
             .build()
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(googlePlex), 500, null)
+        displayEventsToMap()
 //            mMap.addMarker(
 //                MarkerOptions()
 //                    .position(LatLng(16.138200, 108.120029))
@@ -439,6 +442,122 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
 //                        )
 //                    )
 //            )
+    }
+
+    private fun displayEventsToMap() {
+        val mockEvent = Event()
+        mockEvent.name = "Triển Lãm Du Học Mỹ & Canada Mùa Xuân 2020"
+        mockEvent.description =
+            "Sự kiện thường niên cập nhật những thông tin du học Mỹ & Canada mới nhất do AAE tổ chức quy tụ hơn #40_trường, từ Trung học đến Đại Học - Sau Đại Học"
+        mockEvent.locationLat = 16.1305722
+        mockEvent.locationLng = 108.1258587
+        mockEvent.location = "Khách sạn Hilton, 50 Bạch Đằng, Q. Hải Châu"
+        mockEvent.category = Category.MUSIC
+        mockEvent.startDate = System.currentTimeMillis()
+        mockEvent.endDate = System.currentTimeMillis() + 5 * 24 * 60 * 60 * 1000
+        mockEvent.hostName = "Access American Education"
+        listEvents.add(mockEvent)
+        for (event in listEvents) {
+            displayEventMarker(event)
+        }
+    }
+
+    fun displayEventMarker(event: Event) {
+        val markerOptions = MarkerOptions()
+        //Set attribute for marker;
+        markerOptions.title(event.name)
+        markerOptions.snippet(event.description)
+        val position = LatLng(event.locationLat, event.locationLng)
+        markerOptions.position(position)
+        if (event.category == Category.MUSIC) {
+            markerOptions.icon(
+                bitmapDescriptorFromVector(
+                    requireContext(),
+                    R.drawable.ic_concert
+                )
+            )
+        }
+        val marker = mMap.addMarker(markerOptions)
+        marker.tag = event
+    }
+
+    override fun onInfoWindowClick(marker: Marker?) {
+        marker?.run {
+            if (this.tag !is Event) {
+                val event = this.tag as Event
+                var bundle = bundleOf("event" to event)
+//                findNavController().navigate(R.id.action, bundle)
+            }
+        }
+
+//        if (marker?.tag !is null)
+//        {
+//            if (marker.getTag() instanceof  Report) {
+//                Report report = (Report) marker.getTag();
+//                boolean isVoted = false;
+//                tvTitleInfoReport.setText(report.getTitle());
+//                tvDescriptionInfoReport.setText(report.getContent());
+//                StringBuilder builder = new StringBuilder();
+//                builder.append(report.getRemainingTime()/3600);
+//                builder.append(" ");
+//                builder.append(getString(R.string.mins));
+//                tvRemainingTimeInfoReport.setText(builder.toString());
+//                tvReporterNameInfoReport.setText(report.getReporter().getUsername());
+//                tvUpVoteInfoReport.setText(String.valueOf(report.getUpVote()));
+//                tvDownVoteInfoReport.setText(String.valueOf(report.getDownVote()));
+//                tvPostedDateInfoReport.setText(new SimpleDateFormat("dd/MM/yyyy", Locale.US).format(report.getPostDate()));
+//                ivDownVoteInfoReport.setOnClickListener(l -> {
+//                    int currentUpVote = report.getUpVote();
+//                    int currentDownVote = report.getDownVote();
+//                    if (ivDownVoteInfoReport.isEnabled()) {
+//                        if (currentUpVote > 0) {
+//                            report.setUpVote(--currentUpVote);
+//                            tvUpVoteInfoReport.setText(String.valueOf(currentUpVote));
+//                        }
+//                        report.setDownVote(++currentDownVote);
+//                        tvDownVoteInfoReport.setText(String.valueOf(currentDownVote));
+//                        ivDownVoteInfoReport.setEnabled(false);
+//                        ivUpVoteInfoReport.setEnabled(true);
+//                        Map<String, Object> vote = new HashMap<>();
+//                        vote.put("downVote", currentDownVote);
+//                        vote.put("upVote", currentUpVote);
+//                        databaseReference.child("reports")
+//                            .child(report.getId())
+//                            .updateChildren(vote)
+//                            .addOnCompleteListener(task -> {
+//                            showToastMessage("Vote down successfully!");
+//                        });
+//                    }
+//                });
+//                ivUpVoteInfoReport.setOnClickListener(l -> {
+//                    int currentUpVote = report.getUpVote();
+//                    int currentDownVote = report.getDownVote();
+//                    if (ivUpVoteInfoReport.isEnabled()) {
+//                        if (currentDownVote > 0) {
+//                            report.setDownVote(--currentDownVote);
+//                            tvDownVoteInfoReport.setText(String.valueOf(currentDownVote));
+//                        }
+//                        report.setUpVote(++currentUpVote);
+//                        tvUpVoteInfoReport.setText(String.valueOf(currentUpVote));
+//                        ivUpVoteInfoReport.setEnabled(false);
+//                        ivDownVoteInfoReport.setEnabled(true);
+//                        Map<String, Object> vote = new HashMap<>();
+//                        vote.put("downVote", currentDownVote);
+//                        vote.put("upVote", currentUpVote);
+//                        databaseReference.child("reports")
+//                            .child(report.getId())
+//                            .updateChildren(vote)
+//                            .addOnCompleteListener(task -> {
+//                            showToastMessage("Vote up successfully!");
+//                        });
+//                    }
+//                });
+//                Log.e("size of report image: ",report.getImageName().size()+"");
+//                downloadImageAdapter.setImageUrl(report.getImageName());
+//                downloadImageAdapter.notifyDataSetChanged();
+//                dialogInfoReport.show();
+//            }
+//        }
     }
 
 }

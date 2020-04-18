@@ -21,10 +21,11 @@
         android:hint="@string/help_name"
         app:errorEnabled="true">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textHelpName" />
+    <com.google.android.material.textfield.TextInputEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_request_name"
+        android:inputType="textCapWords" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -40,7 +41,7 @@
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textHelpDescription" />
+            android:inputType="text" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
