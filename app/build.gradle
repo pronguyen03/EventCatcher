@@ -60,6 +60,17 @@ dependencies {
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
+    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.google.firebase:firebase-database:16.0.4'
+    implementation 'com.google.firebase:firebase-storage:19.1.0'
+    implementation 'com.google.firebase:firebase-auth:19.1.0'
+    implementation 'pub.devrel:easypermissions:3.0.0'
+    implementation 'com.iceteck.silicompressorr:silicompressor:2.2.3'
+    implementation 'id.zelory:compressor:3.0.0'
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation 'com.github.d-max:spots-dialog:1.1@aar'
+    implementation 'com.karumi:dexter:6.1.0'
 
     // Arrows
     implementation "io.arrow-kt:arrow-optics:$arrow_version"

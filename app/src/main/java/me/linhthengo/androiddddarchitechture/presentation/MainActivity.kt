@@ -1,24 +1,24 @@
 package me.linhthengo.androiddddarchitechture.presentation
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.GravityCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_home.*
 import me.linhthengo.androiddddarchitechture.R
+import me.linhthengo.androiddddarchitechture.UI.UserProfileActivity
 import me.linhthengo.androiddddarchitechture.core.platform.BaseActivity
-import me.linhthengo.androiddddarchitechture.presentation.home.HomeFragment
+
+
 
 class MainActivity : BaseActivity() {
     override fun layoutId(): Int = R.layout.activity_main
@@ -28,8 +28,24 @@ class MainActivity : BaseActivity() {
 
 
     private lateinit var appBarConfiguration: AppBarConfiguration
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.profile -> {
+                val userProfile = Intent(applicationContext, UserProfileActivity::class.java)
+                startActivity(userProfile)
+                return true
+            }
+            else ->{
+                return super.onOptionsItemSelected(item)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         // Action Bar
         setSupportActionBar(findViewById(R.id.toolbar))
@@ -56,6 +72,7 @@ class MainActivity : BaseActivity() {
                     toolbar.visibility = View.GONE
                 }
             }
+
         }
 
         // Location Permission
