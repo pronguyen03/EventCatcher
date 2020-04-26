@@ -123,7 +123,7 @@ dependencies {
 
     // Firebase Authentication
     implementation "com.google.firebase:firebase-auth:$firebase_auth_version"
-
+    implementation 'com.google.firebase:firebase-firestore-ktx:21.4.3'
     // Google Sign In
     implementation "com.google.android.gms:play-services-auth:$google_sign_in_version"
 
@@ -159,4 +159,8 @@ dependencies {
     // Search Bar
     implementation 'com.github.mancj:MaterialSearchBar:0.8.2'
 
+    // Get Image URL
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
+    implementation 'com.google.code.gson:gson:2.8.6'
 }
