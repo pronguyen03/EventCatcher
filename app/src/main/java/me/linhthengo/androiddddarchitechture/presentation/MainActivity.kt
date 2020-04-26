@@ -4,28 +4,22 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.GravityCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_home.*
 import me.linhthengo.androiddddarchitechture.R
 import me.linhthengo.androiddddarchitechture.core.platform.BaseActivity
-import me.linhthengo.androiddddarchitechture.presentation.home.HomeFragment
 
 class MainActivity : BaseActivity() {
     override fun layoutId(): Int = R.layout.activity_main
 
     private val PERMISSION_REQUEST_CODE = 9001
-    private var mLocationPermissionGranted: Boolean = false;
-
+    private var mLocationPermissionGranted: Boolean = false
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +49,9 @@ class MainActivity : BaseActivity() {
                 R.id.signUpFragment -> {
                     toolbar.visibility = View.GONE
                 }
+                R.id.eventDetailFragment -> {
+                    toolbar.visibility = View.VISIBLE
+                }
             }
         }
 
@@ -83,10 +80,10 @@ class MainActivity : BaseActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == PERMISSION_REQUEST_CODE && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            mLocationPermissionGranted = true;
-            Toast.makeText(this,"Permission granted", Toast.LENGTH_SHORT).show();
+            mLocationPermissionGranted = true
+            Toast.makeText(this,"Permission granted", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(this,"Permission denied", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Permission denied", Toast.LENGTH_SHORT).show()
         }
     }
 

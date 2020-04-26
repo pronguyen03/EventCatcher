@@ -5,6 +5,7 @@ import dagger.android.ContributesAndroidInjector
 import me.linhthengo.androiddddarchitechture.presentation.MainActivity
 import me.linhthengo.androiddddarchitechture.presentation.auth.signin.SignInFragmentProvider
 import me.linhthengo.androiddddarchitechture.presentation.auth.signup.SignUpFragmentProvider
+import me.linhthengo.androiddddarchitechture.presentation.event.EventDetailFragmentProvider
 import me.linhthengo.androiddddarchitechture.presentation.home.HomeFragmentProvider
 import me.linhthengo.androiddddarchitechture.presentation.splash.SplashFragmentProvider
 
@@ -16,7 +17,8 @@ interface ActivityBuilder {
             SplashFragmentProvider::class,
             SignInFragmentProvider::class,
             SignUpFragmentProvider::class,
-            HomeFragmentProvider::class
+            HomeFragmentProvider::class,
+            EventDetailFragmentProvider::class
         ]
     )
     fun buildMainActivity(): MainActivity

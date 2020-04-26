@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_homeFragment_to_signInFragment"
             app:destination="@id/signInFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_eventDetailFragment"
+            app:destination="@id/eventDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
@@ -49,4 +52,9 @@
         android:name="me.linhthengo.androiddddarchitechture.presentation.auth.signup.SignUpFragment"
         android:label="Sign Up"
         tools:layout="@layout/sign_up_fragment" />
+    <fragment
+        android:id="@+id/eventDetailFragment"
+        android:name="me.linhthengo.androiddddarchitechture.presentation.event.EventDetailFragment"
+        android:label="Event Detail"
+        tools:layout="@layout/event_detail"/>
 </navigation>

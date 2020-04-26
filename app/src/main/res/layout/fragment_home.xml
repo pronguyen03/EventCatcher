@@ -70,7 +70,7 @@
             android:backgroundTint="@color/colorPrimary"
             android:clickable="true"
             android:focusable="true"
-            android:src="@drawable/ic_add_white_24dp"
+            android:src="@drawable/ic_explore"
             app:tint="@color/white" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

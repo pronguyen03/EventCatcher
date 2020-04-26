@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.os.Bundle
 import android.os.Handler
@@ -39,6 +40,10 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.toObject
+import com.google.gson.Gson
 import com.mancj.materialsearchbar.MaterialSearchBar
 import com.mancj.materialsearchbar.adapter.SuggestionsAdapter
 import kotlinx.android.synthetic.main.dialog_discover_event.*
@@ -47,29 +52,32 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import me.linhthengo.androiddddarchitechture.R
 import me.linhthengo.androiddddarchitechture.core.extension.appContext
 import me.linhthengo.androiddddarchitechture.core.extension.lifeCycleOwner
 import me.linhthengo.androiddddarchitechture.core.platform.BaseFragment
 import me.linhthengo.androiddddarchitechture.enums.Category
 import me.linhthengo.androiddddarchitechture.models.Event
+import me.linhthengo.androiddddarchitechture.models.User
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 import kotlin.coroutines.CoroutineContext
 
 
-class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
-    GoogleMap.OnInfoWindowClickListener {
+class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
     override val coroutineContext: CoroutineContext = Dispatchers.Main
 
-    override fun layoutId(): Int = R.id.homeFragment
+    override fun layoutId(): Int = R.layout.fragment_home
 
     companion object {
         const val DEFAULT_ZOOM = 15f
     }
 
+    private val TAG = "Home Fragment"
     private lateinit var mMap: GoogleMap
     private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var placesClient: PlacesClient
@@ -86,11 +94,19 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
     private var isOpenFab: Boolean = false
 
     private var startDate = Calendar.getInstance()
-    private var endDate = Calendar.getInstance()
     private val listEvents = mutableListOf<Event>();
+    private var filterUpcoming = true
+    private var filterOngoing = true
+    private var filterScope = 40
+    private lateinit var searchMarker: Marker
+//
+    private var firestoreDB: FirebaseFirestore? = null
+//    private var eventListener: ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        firestoreDB = FirebaseFirestore.getInstance()
         // This callback will only be called when MyFragment is at least Started.
         val callback: OnBackPressedCallback =
             object : OnBackPressedCallback(true /* enabled by default */) {
@@ -133,10 +149,8 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        val rootView: View = inflater.inflate(R.layout.fragment_home, container, false)
-//        val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
-//        val actionBar = (activity as AppCompatActivity).supportActionBar
-        return rootView
+
+        return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -150,19 +164,13 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
         fab_main.setOnClickListener {
             if (isOpenFab) {
                 fab_event.startAnimation(fabClose)
-//                fab.startAnimation(fabClose)
                 fab_main.startAnimation(rotateAcw)
                 fab_event.visibility = View.GONE
-//                fab.visibility = View.GONE
-//                fab_main.setImageResource(R.drawable.ic_add_white_24dp)
                 isOpenFab = false
             } else {
                 fab_event.startAnimation(fabOpen)
-//                fab.startAnimation(fabOpen)
                 fab_main.startAnimation(rotateCw)
                 fab_event.visibility = View.VISIBLE
-//                fab.visibility = View.VISIBLE
-//                fab_main.setImageResource(R.drawable.ic_close_white_24dp)
                 isOpenFab = true
             }
         }
@@ -171,9 +179,11 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
             val dialogEvent = Dialog(requireContext(), R.style.DialogTheme).apply {
                 setContentView(R.layout.dialog_discover_event)
                 btn_close_dialog_explore.setOnClickListener {
+                    filterEvents(filterUpcoming, filterOngoing, filterScope, startDate)
                     dismiss()
                 }
 
+                // Scope Bar
                 sb_scope.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(
                         seekBar: SeekBar?,
@@ -181,8 +191,10 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
                         fromUser: Boolean
                     ) =
                         if (progress >= 1) {
+                            filterScope = progress
                             tv_scope_value.text = "$progress kms"
                         } else {
+                            filterScope = progress
                             tv_scope_value.text = "$progress km"
                         }
 
@@ -191,8 +203,10 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
 
                     override fun onStopTrackingTouch(seekBar: SeekBar?) {
                     }
-
                 })
+                sb_scope.progress = filterScope
+
+                // Start Date
                 val format = "MM/dd/yyyy"
                 val sdf = SimpleDateFormat(format, Locale.getDefault())
                 edt_start_date.setText(sdf.format(startDate.time))
@@ -215,12 +229,22 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
                     datePickerDialog.show()
                 }
 
-            }.show()
-        }
+                switch_upcoming_event.isChecked = filterUpcoming
+                switch_upcoming_event.setOnCheckedChangeListener { _, isChecked ->
+                    filterUpcoming = isChecked
+                }
 
-//        fab.setOnClickListener {
-//            Toast.makeText(appContext, "Show Another Dialog", Toast.LENGTH_LONG).show()
-//        }
+                switch_ongoing_event.isChecked = filterOngoing
+                switch_ongoing_event.setOnCheckedChangeListener { _, isChecked ->
+                    filterOngoing = isChecked
+                }
+
+                btn_close_dialog.setOnClickListener {
+                    dismiss()
+                }
+            }
+            dialogEvent.show()
+        }
 
         nvView.setNavigationItemSelectedListener {
             drawer_layout?.closeDrawer(GravityCompat.START)
@@ -297,7 +321,7 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
                                     }
                                 }
                             } else {
-                                Timber.tag("mytag").i("prediction fetching task unsuccessful")
+                                Timber.tag(TAG).i("prediction fetching task unsuccessful")
                             }
                         }
                 }
@@ -308,7 +332,8 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
 
         searchBar.setSuggestionsClickListener(object : SuggestionsAdapter.OnItemViewClickListener {
             override fun OnItemDeleteListener(position: Int, v: View?) {
-
+                searchBar.lastSuggestions.removeAt(position)
+                searchBar.updateLastSuggestions(searchBar.lastSuggestions)
             }
 
             override fun OnItemClickListener(position: Int, v: View?) {
@@ -343,7 +368,12 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
                         Timber.tag("mytag").i("Place found ${place.name}")
                         val latLngOfPlace = place.latLng
                         latLngOfPlace?.let {
+                            searchMarker = mMap.addMarker(MarkerOptions()
+                                .position(it)
+                                .title(place.name)
+                                .icon(bitmapDescriptorFromVector(requireActivity(), R.drawable.ic_location_pin)))
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(it, DEFAULT_ZOOM))
+
                         }
                     }
                     .addOnFailureListener {
@@ -359,10 +389,7 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
 
         })
 
-        //
-
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -424,39 +451,93 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
         // position on right bottom
         rlp.setMargins(0, 215, 0, 0)
         rlpCommpass.setMargins(0, 215, 0, 0)
-        val googlePlex = CameraPosition.builder()
-            .target(LatLng(16.138200, 108.120029))
-            .zoom(15f)
-            .bearing(0f)
-            .tilt(45f)
-            .build()
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(googlePlex), 500, null)
-        displayEventsToMap()
-//            mMap.addMarker(
-//                MarkerOptions()
-//                    .position(LatLng(16.138200, 108.120029))
-//                    .icon(
-//                        bitmapDescriptorFromVector(
-//                            requireContext(),
-//                            R.drawable.ic_event_available_black_24dp
-//                        )
-//                    )
-//            )
+
+
+         mFusedLocationProviderClient.lastLocation.addOnCompleteListener {
+            if (it.result != null) {
+                val currentLocation = it.result
+                val currentLat: Double
+                val currentLng: Double
+                if (currentLocation != null) {
+                    currentLat = currentLocation.latitude
+                    currentLng = currentLocation.longitude
+                } else {
+                    currentLat = 16.138200
+                    currentLng = 108.120029
+                }
+                val googlePlex = CameraPosition.builder()
+                    .target(LatLng(currentLat, currentLng))
+                    .zoom(15f)
+                    .bearing(0f)
+                    .build()
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(googlePlex), 500, null)
+            }
+        }
+
+
+
+        mMap.setOnInfoWindowClickListener { marker ->
+            marker?.run {
+                if (this.tag is Event) {
+                    val event = this.tag as Event
+                    val bundle = bundleOf("event" to event)
+                    findNavController().navigate(R.id.action_homeFragment_to_eventDetailFragment, bundle)
+                }
+            }
+        }
+
+        getListAllEvent()
+    }
+
+    private fun getListAllEvent() {
+        firestoreDB!!.collection("event").get().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                listEvents.clear()
+                for (document in task.result!!) {
+                    val event = Event()
+                    event.id = document.id
+                    event.name = document.data["name"].toString()
+                    event.image = document.data["image"].toString()
+                    event.description = document.data["description"].toString()
+                    event.locationLat = document.data["locationLat"] as Double
+                    event.locationLng = document.data["locationLng"] as Double
+                    event.location = document.data["location"].toString()
+                    event.locationName = document.data["locationName"].toString()
+                    event.category = Category.valueOf(document.data["category"].toString().toUpperCase())
+                    event.startDate = (document.data["startDate"] as Timestamp).seconds
+                    event.endDate = (document.data["endDate"] as Timestamp).seconds
+                    event.hostId = document.data["hostId"].toString()
+                    event.hostName = document.data["hostName"].toString()
+                    val listInterest = document.data["listInterest"] as MutableList<HashMap<String, String>>?
+                    listInterest?.forEach { value ->
+                        event.listInterest.add(User(
+                            value["uid"].toString(),
+                            value["name"].toString(),
+                            value["email"].toString()
+                        ))
+                    }
+
+                    val listParticipant = document.data["listParticipant"] as MutableList<HashMap<String, String>>?
+                    listParticipant?.forEach { value ->
+                        event.listParticipant.add(User(
+                            value["uid"].toString(),
+                            value["name"].toString(),
+                            value["email"].toString()
+                        ))
+                    }
+
+
+                    listEvents.add(event)
+                }
+                displayEventsToMap()
+            } else {
+                Timber.tag(TAG).d(task.exception, "Error getting events ")
+            }
+        }
     }
 
     private fun displayEventsToMap() {
-        val mockEvent = Event()
-        mockEvent.name = "Triển Lãm Du Học Mỹ & Canada Mùa Xuân 2020"
-        mockEvent.description =
-            "Sự kiện thường niên cập nhật những thông tin du học Mỹ & Canada mới nhất do AAE tổ chức quy tụ hơn #40_trường, từ Trung học đến Đại Học - Sau Đại Học"
-        mockEvent.locationLat = 16.1305722
-        mockEvent.locationLng = 108.1258587
-        mockEvent.location = "Khách sạn Hilton, 50 Bạch Đằng, Q. Hải Châu"
-        mockEvent.category = Category.MUSIC
-        mockEvent.startDate = System.currentTimeMillis()
-        mockEvent.endDate = System.currentTimeMillis() + 5 * 24 * 60 * 60 * 1000
-        mockEvent.hostName = "Access American Education"
-        listEvents.add(mockEvent)
+        mMap.clear()
         for (event in listEvents) {
             displayEventMarker(event)
         }
@@ -476,20 +557,19 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
                     R.drawable.ic_concert
                 )
             )
+        } else {
+            markerOptions.icon(
+                bitmapDescriptorFromVector(
+                    requireContext(),
+                    R.drawable.ic_location_pin
+                )
+            )
         }
         val marker = mMap.addMarker(markerOptions)
         marker.tag = event
     }
 
-    override fun onInfoWindowClick(marker: Marker?) {
-        marker?.run {
-            if (this.tag !is Event) {
-                val event = this.tag as Event
-                var bundle = bundleOf("event" to event)
-//                findNavController().navigate(R.id.action, bundle)
-            }
-        }
-
+    fun onInfoWindowClick(marker: Marker?) {
 //        if (marker?.tag !is null)
 //        {
 //            if (marker.getTag() instanceof  Report) {
@@ -558,6 +638,12 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
 //                dialogInfoReport.show();
 //            }
 //        }
+    }
+
+    private fun filterEvents(isUpcoming: Boolean, isOngoing: Boolean, scope: Int, startDate: Calendar) {
+//        val currentLocation = mFusedLocationProviderClient.lastLocation.result
+//        listEvents = homeViewModel.getEvent(isUpcoming, isOngoing, currentLocation, scope, startDate)
+//        displayEventsToMap()
     }
 
 }

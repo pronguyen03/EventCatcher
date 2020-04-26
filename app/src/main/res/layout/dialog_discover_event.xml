@@ -9,7 +9,20 @@
     android:backgroundTint="@color/white"
     android:gravity="center_vertical">
 
+    <ImageButton
+        android:id="@+id/btn_close_dialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tint="@color/white"
+        android:backgroundTint="@color/colorPrimary"
+        android:src="@drawable/ic_close_white_24dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:contentDescription="@string/close_dialog" />
     <ImageView
+        android:layout_below="@id/btn_close_dialog"
         android:id="@+id/imv_logo"
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -113,7 +126,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginBottom="-5dp"
-                android:text="30 km"
+                android:text="30 kms"
                 android:textColor="@color/black"
                 android:textSize="20sp" />
         </RelativeLayout>
@@ -168,9 +181,9 @@
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Start Date"
+            android:text="@string/start_date"
             android:textColor="@color/black"
-            android:textSize="18dp"
+            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
