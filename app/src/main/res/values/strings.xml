@@ -51,4 +51,6 @@
     <string name="more">More</string>
     <string name="time">Time</string>
     <string name="close_dialog">Close Dialog</string>
+    <string name="see_all">See All</string>
+    <string name="zero">0</string>
 </resources>

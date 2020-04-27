@@ -3,9 +3,10 @@ package me.linhthengo.androiddddarchitechture.presentation.home
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
@@ -33,6 +34,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.tasks.Task
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
@@ -42,8 +44,8 @@ import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRe
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObject
-import com.google.gson.Gson
+import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.firestore.QuerySnapshot
 import com.mancj.materialsearchbar.MaterialSearchBar
 import com.mancj.materialsearchbar.adapter.SuggestionsAdapter
 import kotlinx.android.synthetic.main.dialog_discover_event.*
@@ -52,7 +54,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import me.linhthengo.androiddddarchitechture.R
 import me.linhthengo.androiddddarchitechture.core.extension.appContext
 import me.linhthengo.androiddddarchitechture.core.extension.lifeCycleOwner
@@ -64,20 +65,21 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 import kotlin.coroutines.CoroutineContext
 
 
 class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
+    private lateinit var sharedPreferences: SharedPreferences
     override val coroutineContext: CoroutineContext = Dispatchers.Main
 
     override fun layoutId(): Int = R.layout.fragment_home
 
     companion object {
         const val DEFAULT_ZOOM = 15f
+        const val DATE_FORMAT = "MM/dd/yyyy"
+        const val TAG = "Home Fragment"
     }
 
-    private val TAG = "Home Fragment"
     private lateinit var mMap: GoogleMap
     private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var placesClient: PlacesClient
@@ -94,18 +96,19 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
     private var isOpenFab: Boolean = false
 
     private var startDate = Calendar.getInstance()
-    private val listEvents = mutableListOf<Event>();
-    private var filterUpcoming = true
+    private val listEvents = mutableListOf<Event>()
     private var filterOngoing = true
+    private var filterUpcoming = false
     private var filterScope = 40
     private lateinit var searchMarker: Marker
-//
+
+    //
     private var firestoreDB: FirebaseFirestore? = null
 //    private var eventListener: ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        sharedPreferences = requireContext().getSharedPreferences("location", Context.MODE_PRIVATE)
         firestoreDB = FirebaseFirestore.getInstance()
         // This callback will only be called when MyFragment is at least Started.
         val callback: OnBackPressedCallback =
@@ -176,73 +179,7 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
         }
 
         fab_event.setOnClickListener {
-            val dialogEvent = Dialog(requireContext(), R.style.DialogTheme).apply {
-                setContentView(R.layout.dialog_discover_event)
-                btn_close_dialog_explore.setOnClickListener {
-                    filterEvents(filterUpcoming, filterOngoing, filterScope, startDate)
-                    dismiss()
-                }
-
-                // Scope Bar
-                sb_scope.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                    override fun onProgressChanged(
-                        seekBar: SeekBar?,
-                        progress: Int,
-                        fromUser: Boolean
-                    ) =
-                        if (progress >= 1) {
-                            filterScope = progress
-                            tv_scope_value.text = "$progress kms"
-                        } else {
-                            filterScope = progress
-                            tv_scope_value.text = "$progress km"
-                        }
-
-                    override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                    }
-
-                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                    }
-                })
-                sb_scope.progress = filterScope
-
-                // Start Date
-                val format = "MM/dd/yyyy"
-                val sdf = SimpleDateFormat(format, Locale.getDefault())
-                edt_start_date.setText(sdf.format(startDate.time))
-                val startDateCallback =
-                    DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
-                        startDate.set(Calendar.YEAR, year)
-                        startDate.set(Calendar.MONTH, month)
-                        startDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                        edt_start_date.setText(sdf.format(startDate.time))
-                    }
-                edt_start_date.setOnClickListener {
-                    val datePickerDialog = DatePickerDialog(
-                        requireActivity(),
-                        startDateCallback,
-                        startDate.get(Calendar.YEAR),
-                        startDate.get(Calendar.MONTH),
-                        startDate.get(Calendar.DAY_OF_MONTH)
-                    )
-                    datePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000
-                    datePickerDialog.show()
-                }
-
-                switch_upcoming_event.isChecked = filterUpcoming
-                switch_upcoming_event.setOnCheckedChangeListener { _, isChecked ->
-                    filterUpcoming = isChecked
-                }
-
-                switch_ongoing_event.isChecked = filterOngoing
-                switch_ongoing_event.setOnCheckedChangeListener { _, isChecked ->
-                    filterOngoing = isChecked
-                }
-
-                btn_close_dialog.setOnClickListener {
-                    dismiss()
-                }
-            }
+            val dialogEvent = getExploreDialog()
             dialogEvent.show()
         }
 
@@ -368,10 +305,17 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                         Timber.tag("mytag").i("Place found ${place.name}")
                         val latLngOfPlace = place.latLng
                         latLngOfPlace?.let {
-                            searchMarker = mMap.addMarker(MarkerOptions()
-                                .position(it)
-                                .title(place.name)
-                                .icon(bitmapDescriptorFromVector(requireActivity(), R.drawable.ic_location_pin)))
+                            searchMarker = mMap.addMarker(
+                                MarkerOptions()
+                                    .position(it)
+                                    .title(place.name)
+                                    .icon(
+                                        bitmapDescriptorFromVector(
+                                            requireActivity(),
+                                            R.drawable.ic_location_pin
+                                        )
+                                    )
+                            )
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(it, DEFAULT_ZOOM))
 
                         }
@@ -386,8 +330,8 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                         }
                     }
             }
-
         })
+
 
     }
 
@@ -453,87 +397,39 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
         rlpCommpass.setMargins(0, 215, 0, 0)
 
 
-         mFusedLocationProviderClient.lastLocation.addOnCompleteListener {
-            if (it.result != null) {
-                val currentLocation = it.result
-                val currentLat: Double
-                val currentLng: Double
-                if (currentLocation != null) {
-                    currentLat = currentLocation.latitude
-                    currentLng = currentLocation.longitude
-                } else {
-                    currentLat = 16.138200
-                    currentLng = 108.120029
-                }
-                val googlePlex = CameraPosition.builder()
-                    .target(LatLng(currentLat, currentLng))
-                    .zoom(15f)
-                    .bearing(0f)
-                    .build()
-                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(googlePlex), 500, null)
-            }
-        }
-
-
+        moveToDeviceLocation()
 
         mMap.setOnInfoWindowClickListener { marker ->
             marker?.run {
                 if (this.tag is Event) {
                     val event = this.tag as Event
                     val bundle = bundleOf("event" to event)
-                    findNavController().navigate(R.id.action_homeFragment_to_eventDetailFragment, bundle)
+                    findNavController().navigate(
+                        R.id.action_homeFragment_to_eventDetailFragment,
+                        bundle
+                    )
                 }
             }
         }
 
-        getListAllEvent()
+        filterEvents(filterUpcoming, filterOngoing, filterScope, startDate)
     }
 
     private fun getListAllEvent() {
-        firestoreDB!!.collection("event").get().addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                listEvents.clear()
-                for (document in task.result!!) {
-                    val event = Event()
-                    event.id = document.id
-                    event.name = document.data["name"].toString()
-                    event.image = document.data["image"].toString()
-                    event.description = document.data["description"].toString()
-                    event.locationLat = document.data["locationLat"] as Double
-                    event.locationLng = document.data["locationLng"] as Double
-                    event.location = document.data["location"].toString()
-                    event.locationName = document.data["locationName"].toString()
-                    event.category = Category.valueOf(document.data["category"].toString().toUpperCase())
-                    event.startDate = (document.data["startDate"] as Timestamp).seconds
-                    event.endDate = (document.data["endDate"] as Timestamp).seconds
-                    event.hostId = document.data["hostId"].toString()
-                    event.hostName = document.data["hostName"].toString()
-                    val listInterest = document.data["listInterest"] as MutableList<HashMap<String, String>>?
-                    listInterest?.forEach { value ->
-                        event.listInterest.add(User(
-                            value["uid"].toString(),
-                            value["name"].toString(),
-                            value["email"].toString()
-                        ))
+        firestoreDB!!.collection("event")
+            .whereGreaterThanOrEqualTo(
+                "endDate", Timestamp(Date())
+            ).get().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val listEvents = mutableListOf<QueryDocumentSnapshot>()
+                    task.result!!.forEach { document ->
+                        listEvents.add(document)
                     }
-
-                    val listParticipant = document.data["listParticipant"] as MutableList<HashMap<String, String>>?
-                    listParticipant?.forEach { value ->
-                        event.listParticipant.add(User(
-                            value["uid"].toString(),
-                            value["name"].toString(),
-                            value["email"].toString()
-                        ))
-                    }
-
-
-                    listEvents.add(event)
+                    bindDataEvents(listEvents)
+                } else {
+                    Timber.tag(TAG).d(task.exception, "Error getting events ")
                 }
-                displayEventsToMap()
-            } else {
-                Timber.tag(TAG).d(task.exception, "Error getting events ")
             }
-        }
     }
 
     private fun displayEventsToMap() {
@@ -640,10 +536,232 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
 //        }
     }
 
-    private fun filterEvents(isUpcoming: Boolean, isOngoing: Boolean, scope: Int, startDate: Calendar) {
-//        val currentLocation = mFusedLocationProviderClient.lastLocation.result
-//        listEvents = homeViewModel.getEvent(isUpcoming, isOngoing, currentLocation, scope, startDate)
-//        displayEventsToMap()
+    private fun filterEvents(
+        isUpcoming: Boolean,
+        isOngoing: Boolean,
+        scope: Int,
+        startDate: Calendar
+    ) {
+        val currentDateTimestamp = Timestamp(Date())
+        val queryStartDate: Timestamp
+        val collection = firestoreDB!!.collection("event")
+        var querySnapshot: Task<QuerySnapshot>? = null
+        if (isOngoing) {
+            collection.whereGreaterThanOrEqualTo(
+                "endDate", currentDateTimestamp
+            ).get().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val listEvents = mutableListOf<QueryDocumentSnapshot>()
+                    task.result!!.forEach { document ->
+                        val startDate = document.data["startDate"] as Timestamp
+                        if (startDate < currentDateTimestamp) {
+                            listEvents.add(document)
+                        }
+                    }
+                    bindDataEvents(listEvents)
+                } else {
+                    Timber.tag(TAG).d(task.exception, "Error getting events ")
+                }
+
+            }
+        }
+
+        if (isUpcoming) {
+            val startDateTimestamp = Timestamp(startDate.time)
+            queryStartDate = if (startDateTimestamp >= currentDateTimestamp) {
+                startDateTimestamp
+            } else {
+                startDateTimestamp
+            }
+            querySnapshot = collection.whereGreaterThanOrEqualTo(
+                "startDate", queryStartDate
+            ).get().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val listEvents = mutableListOf<QueryDocumentSnapshot>()
+                    task.result!!.forEach { document ->
+                        listEvents.add(document)
+                    }
+                    bindDataEvents(listEvents)
+                } else {
+                    Timber.tag(TAG).d(task.exception, "Error getting events ")
+                }
+
+            }
+        }
+
+    }
+
+    private fun bindDataEvents(querySnapshot: MutableList<QueryDocumentSnapshot>) {
+        listEvents.clear()
+        for (document in querySnapshot) {
+            val event = Event()
+            event.id = document.id
+            event.name = document.data["name"].toString()
+            event.image = document.data["image"].toString()
+            event.description = document.data["description"].toString()
+            event.locationLat = document.data["locationLat"] as Double
+            event.locationLng = document.data["locationLng"] as Double
+            event.location = document.data["location"].toString()
+            event.locationName = document.data["locationName"].toString()
+            event.category = Category.valueOf(document.data["category"].toString().toUpperCase())
+            event.startDate = (document.data["startDate"] as Timestamp).seconds
+            event.endDate = (document.data["endDate"] as Timestamp).seconds
+            event.hostId = document.data["hostId"].toString()
+            event.hostName = document.data["hostName"].toString()
+            val listInterest =
+                document.data["listInterest"] as MutableList<HashMap<String, String>>?
+            listInterest?.forEach { value ->
+                event.listInterest.add(
+                    User(
+                        value["uid"].toString(),
+                        value["name"].toString(),
+                        value["email"].toString()
+                    )
+                )
+            }
+
+            val listParticipant =
+                document.data["listParticipant"] as MutableList<HashMap<String, String>>?
+            listParticipant?.forEach { value ->
+                event.listParticipant.add(
+                    User(
+                        value["uid"].toString(),
+                        value["name"].toString(),
+                        value["email"].toString()
+                    )
+                )
+            }
+
+
+            listEvents.add(event)
+        }
+        displayEventsToMap()
+    }
+
+    private fun moveToDeviceLocation() {
+        try {
+            mFusedLocationProviderClient.lastLocation
+                .addOnCompleteListener { task: Task<Location?> ->
+                    if (task.isSuccessful && task.result != null) {
+                        val currentLocation = task.result
+                        saveLocation(currentLocation!!)
+                        val googlePlex = CameraPosition.builder()
+                            .target(LatLng(currentLocation.latitude, currentLocation.longitude))
+                            .zoom(15f)
+                            .bearing(0f)
+                            .build()
+                        mMap.animateCamera(
+                            CameraUpdateFactory.newCameraPosition(googlePlex),
+                            500,
+                            null
+                        )
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Unable to get current location",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+        } catch (e: SecurityException) {
+            Timber.tag("GetDeviceLocation").e("Sercurity Exeption: %s", e.message)
+        }
+    }
+
+    private fun saveLocation(currentLocation: Location) {
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.putString("LAT", currentLocation.latitude.toString())
+        Timber.i("moveToDeviceLocation: %s", currentLocation.latitude)
+        editor.putString("LONG", currentLocation.longitude.toString())
+        editor.apply()
+    }
+
+    private fun getExploreDialog(): Dialog {
+        return Dialog(requireContext(), R.style.DialogTheme).apply {
+            setContentView(R.layout.dialog_discover_event)
+            switch_ongoing_event.isChecked = filterOngoing
+            switch_upcoming_event.isChecked = filterUpcoming
+
+            switch_ongoing_event.setOnCheckedChangeListener { _, isChecked ->
+                if (filterUpcoming && isChecked) {
+                    filterUpcoming = false
+                    switch_upcoming_event.isChecked = filterUpcoming
+                    edt_start_date.setText("")
+                }
+                filterOngoing = isChecked
+            }
+
+            switch_upcoming_event.setOnCheckedChangeListener { _, isChecked ->
+                if (filterOngoing && isChecked) {
+                    filterOngoing = false
+                    switch_ongoing_event.isChecked = filterOngoing
+                    val sdf = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
+                    edt_start_date.setText(sdf.format(Date().time))
+                }
+                filterUpcoming = isChecked
+            }
+
+            btn_explore_dialog.setOnClickListener {
+                filterEvents(filterUpcoming, filterOngoing, filterScope, startDate)
+                dismiss()
+            }
+
+            // Scope Bar
+            sb_scope.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) =
+                    if (progress >= 1) {
+                        filterScope = progress
+                        tv_scope_value.text = "$progress kms"
+                    } else {
+                        filterScope = progress
+                        tv_scope_value.text = "$progress km"
+                    }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                }
+            })
+            sb_scope.progress = filterScope
+
+            // Start Date
+//            val format = "MM/dd/yyyy"
+//            val sdf = SimpleDateFormat(format, Locale.getDefault())
+//            edt_start_date.setText(sdf.format(startDate.time))
+//            val startDateCallback =
+//                DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
+//                    startDate.set(Calendar.YEAR, year)
+//                    startDate.set(Calendar.MONTH, month)
+//                    startDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+//                    edt_start_date.setText(sdf.format(startDate.time))
+//                }
+//            edt_start_date.setOnClickListener {
+//                val datePickerDialog = DatePickerDialog(
+//                    requireActivity(),
+//                    startDateCallback,
+//                    startDate.get(Calendar.YEAR),
+//                    startDate.get(Calendar.MONTH),
+//                    startDate.get(Calendar.DAY_OF_MONTH)
+//                )
+//                datePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000
+//                datePickerDialog.show()
+//            }
+
+            btn_close_dialog.setOnClickListener {
+                dismiss()
+            }
+
+            btn_explore_all.setOnClickListener {
+                getListAllEvent()
+                dismiss()
+            }
+
+        }
     }
 
 }
