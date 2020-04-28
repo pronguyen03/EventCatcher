@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
+import androidx.navigation.fragment.findNavController
 import com.google.firebase.firestore.FirebaseFirestore
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.event_detail.*
@@ -133,6 +135,14 @@ class EventDetailFragment: BaseFragment() {
                     setActiveParticipate(true)
                 }
             }
+        }
+
+        tv_clickable_direction.setOnClickListener {
+            val bundle = bundleOf("EVENT_DIRECTION" to eventDetail)
+            findNavController().navigate(
+                R.id.action_eventDetailFragment_to_homeFragment,
+                bundle
+            )
         }
     }
 

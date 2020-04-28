@@ -1,12 +1,13 @@
 package me.linhthengo.androiddddarchitechture.presentation.home
 
-import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.location.Location
+import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
@@ -45,7 +46,8 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
-import com.google.firebase.firestore.QuerySnapshot
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.mancj.materialsearchbar.MaterialSearchBar
 import com.mancj.materialsearchbar.adapter.SuggestionsAdapter
 import kotlinx.android.synthetic.main.dialog_discover_event.*
@@ -60,12 +62,19 @@ import me.linhthengo.androiddddarchitechture.core.extension.lifeCycleOwner
 import me.linhthengo.androiddddarchitechture.core.platform.BaseFragment
 import me.linhthengo.androiddddarchitechture.enums.Category
 import me.linhthengo.androiddddarchitechture.models.Event
+import me.linhthengo.androiddddarchitechture.models.GoogleMapDTO
 import me.linhthengo.androiddddarchitechture.models.User
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 
 class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
@@ -78,6 +87,12 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
         const val DEFAULT_ZOOM = 15f
         const val DATE_FORMAT = "MM/dd/yyyy"
         const val TAG = "Home Fragment"
+        const val EARTH_RADIUS = 6378137
+        const val TAG_LIST_EVENTS = "LIST_EVENTS"
+        const val TAG_LAT = "CURRENT_LAT"
+        const val TAG_LNG = "CURRENT_LNG"
+        const val DIRECTION_EVENT = "DIRECTION_EVENT"
+        const val CURRENT_EVENT_PLACE = "CURRENT_EVENT_PLACE"
     }
 
     private lateinit var mMap: GoogleMap
@@ -96,7 +111,7 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
     private var isOpenFab: Boolean = false
 
     private var startDate = Calendar.getInstance()
-    private val listEvents = mutableListOf<Event>()
+    private var listEvents: MutableList<Event> = mutableListOf<Event>()
     private var filterOngoing = true
     private var filterUpcoming = false
     private var filterScope = 40
@@ -304,10 +319,10 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                         val place = it.place
                         Timber.tag("mytag").i("Place found ${place.name}")
                         val latLngOfPlace = place.latLng
-                        latLngOfPlace?.let {
+                        latLngOfPlace?.let { locationPlace ->
                             searchMarker = mMap.addMarker(
                                 MarkerOptions()
-                                    .position(it)
+                                    .position(locationPlace)
                                     .title(place.name)
                                     .icon(
                                         bitmapDescriptorFromVector(
@@ -316,8 +331,12 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                                         )
                                     )
                             )
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(it, DEFAULT_ZOOM))
-
+                            mMap.moveCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    locationPlace,
+                                    DEFAULT_ZOOM
+                                )
+                            )
                         }
                     }
                     .addOnFailureListener {
@@ -384,10 +403,10 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
         mMap.isMyLocationEnabled = true
         mMap.uiSettings.isMyLocationButtonEnabled = true
         mMap.uiSettings.isCompassEnabled = true
-        mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
         mMap.clear() // clear old markers
 
         val parent = (mapView.findViewById<View>(Integer.parseInt("1")).parent as View)
+
         val locationButton = parent.findViewById<View>(Integer.parseInt("2"))
         val compassButton = parent.findViewById<View>(Integer.parseInt("5"))
         val rlp = locationButton.layoutParams as (RelativeLayout.LayoutParams)
@@ -396,12 +415,16 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
         rlp.setMargins(0, 215, 0, 0)
         rlpCommpass.setMargins(0, 215, 0, 0)
 
-
         moveToDeviceLocation()
 
         mMap.setOnInfoWindowClickListener { marker ->
             marker?.run {
                 if (this.tag is Event) {
+                    val gson = Gson()
+                    val listEventJson  = gson.toJson(listEvents)
+                    val editor = sharedPreferences.edit()
+                    editor.putString(TAG_LIST_EVENTS, listEventJson)
+                    editor.apply()
                     val event = this.tag as Event
                     val bundle = bundleOf("event" to event)
                     findNavController().navigate(
@@ -412,7 +435,25 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
             }
         }
 
-        filterEvents(filterUpcoming, filterOngoing, filterScope, startDate)
+        val listEventsJson = sharedPreferences.getString(TAG_LIST_EVENTS, "")
+        if (listEventsJson != null && listEventsJson != "") {
+            val type = object : TypeToken<MutableList<Event>>() {}.type
+            listEvents = Gson().fromJson(listEventsJson, type)
+            if (listEvents.size > 0) {
+                displayEventsToMap()
+            } else {
+                filterEvents(filterUpcoming, filterOngoing, filterScope, startDate)
+            }
+        } else {
+            filterEvents(filterUpcoming, filterOngoing, filterScope, startDate)
+        }
+
+        val args = arguments
+        val eventDirection: Event? = args?.getParcelable("EVENT_DIRECTION")
+        eventDirection?.run {
+            Timber.tag("DIRECTION").i("Run here...")
+            makeDirectionToEventPlace(this)
+        }
     }
 
     private fun getListAllEvent() {
@@ -446,6 +487,7 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
         markerOptions.snippet(event.description)
         val position = LatLng(event.locationLat, event.locationLng)
         markerOptions.position(position)
+
         if (event.category == Category.MUSIC) {
             markerOptions.icon(
                 bitmapDescriptorFromVector(
@@ -542,10 +584,12 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
         scope: Int,
         startDate: Calendar
     ) {
+        val currentLat = sharedPreferences.getString(TAG_LAT, "0")!!.toDouble()
+        val currentLng = sharedPreferences.getString(TAG_LNG, "0")!!.toDouble()
         val currentDateTimestamp = Timestamp(Date())
         val queryStartDate: Timestamp
         val collection = firestoreDB!!.collection("event")
-        var querySnapshot: Task<QuerySnapshot>? = null
+
         if (isOngoing) {
             collection.whereGreaterThanOrEqualTo(
                 "endDate", currentDateTimestamp
@@ -553,11 +597,17 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                 if (task.isSuccessful) {
                     val listEvents = mutableListOf<QueryDocumentSnapshot>()
                     task.result!!.forEach { document ->
-                        val startDate = document.data["startDate"] as Timestamp
-                        if (startDate < currentDateTimestamp) {
+                        val eventStartDate = document.data["startDate"] as Timestamp
+                        val locationLat = document.data["locationLat"] as Double
+                        val locationLng = document.data["locationLng"] as Double
+                        if (eventStartDate < currentDateTimestamp &&
+                            (getDistanceBetweenPoints(locationLat, locationLng, currentLat, currentLng) <= scope ||
+                                    getDistanceBetweenPoints(currentLat, currentLng, locationLat, locationLng) <= scope)
+                        ) {
                             listEvents.add(document)
                         }
                     }
+
                     bindDataEvents(listEvents)
                 } else {
                     Timber.tag(TAG).d(task.exception, "Error getting events ")
@@ -573,20 +623,25 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
             } else {
                 startDateTimestamp
             }
-            querySnapshot = collection.whereGreaterThanOrEqualTo(
-                "startDate", queryStartDate
-            ).get().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val listEvents = mutableListOf<QueryDocumentSnapshot>()
-                    task.result!!.forEach { document ->
-                        listEvents.add(document)
+            collection.whereGreaterThanOrEqualTo("startDate", queryStartDate).get()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val listEvents = mutableListOf<QueryDocumentSnapshot>()
+                        task.result!!.forEach { document ->
+                            val locationLat = document.data["locationLat"] as Double
+                            val locationLng = document.data["locationLng"] as Double
+                            if (getDistanceBetweenPoints(locationLat, locationLng, currentLat, currentLng) <= scope ||
+                                getDistanceBetweenPoints(currentLat, currentLng, locationLat, locationLng) <= scope
+                            ) {
+                                listEvents.add(document)
+                            }
+                        }
+                        bindDataEvents(listEvents)
+                    } else {
+                        Timber.tag(TAG).d(task.exception, "Error getting events ")
                     }
-                    bindDataEvents(listEvents)
-                } else {
-                    Timber.tag(TAG).d(task.exception, "Error getting events ")
-                }
 
-            }
+                }
         }
 
     }
@@ -631,8 +686,6 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                     )
                 )
             }
-
-
             listEvents.add(event)
         }
         displayEventsToMap()
@@ -647,7 +700,7 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                         saveLocation(currentLocation!!)
                         val googlePlex = CameraPosition.builder()
                             .target(LatLng(currentLocation.latitude, currentLocation.longitude))
-                            .zoom(15f)
+                            .zoom(DEFAULT_ZOOM)
                             .bearing(0f)
                             .build()
                         mMap.animateCamera(
@@ -670,9 +723,9 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
 
     private fun saveLocation(currentLocation: Location) {
         val editor: SharedPreferences.Editor = sharedPreferences.edit()
-        editor.putString("LAT", currentLocation.latitude.toString())
+        editor.putString(TAG_LAT, currentLocation.latitude.toString())
         Timber.i("moveToDeviceLocation: %s", currentLocation.latitude)
-        editor.putString("LONG", currentLocation.longitude.toString())
+        editor.putString(TAG_LNG, currentLocation.longitude.toString())
         editor.apply()
     }
 
@@ -762,6 +815,129 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
             }
 
         }
+    }
+
+    /**
+     * Converts degrees to radians.
+     *
+     * @param degrees Number of degrees.
+     */
+    private fun degreesToRadians(degrees: Double): Double {
+        return degrees * Math.PI / 180
+    }
+
+    private fun getDistanceBetweenPoints(
+        lat1: Double,
+        lng1: Double,
+        lat2: Double,
+        lng2: Double
+    ): Double {
+        // The radius of the planet earth in meters
+        val dLat = degreesToRadians(lat2 - lat1)
+        val dLong = degreesToRadians(lng2 - lng1)
+
+        val a = sin(dLat / 2) * sin(dLat / 2) +
+                cos(degreesToRadians(lat1)) * cos(degreesToRadians(lat1)) * sin(dLong / 2) * sin(
+            dLong / 2
+        )
+
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+        return EARTH_RADIUS * c / 1000
+    }
+
+    private fun makeDirectionToEventPlace(event: Event) {
+        val currentLat = sharedPreferences.getString(TAG_LAT, "0")!!.toDouble()
+        val currentLng = sharedPreferences.getString(TAG_LNG, "0")!!.toDouble()
+        val origin = LatLng(currentLat, currentLng)
+        val destination = LatLng(event.locationLat, event.locationLng)
+        val url = getDirectionURL(origin, destination, "driving")
+        GetDirection(url).execute()
+
+    }
+
+    fun getDirectionURL(origin: LatLng, destination: LatLng, directionMode: String): String {
+        val str_origin = "origin=${origin.latitude},${origin.longitude}"
+        val str_dest = "destination=${destination.latitude},${destination.longitude}";
+        val mode = "mode=${directionMode}"
+        val parameters = "${str_origin}&${str_dest}&${mode}"
+        val output = "json"
+        return "https://maps.googleapis.com/maps/api/directions/${output}?${parameters}&key=${getString(R.string.google_maps_key)}"
+    }
+
+    inner class GetDirection(private val url: String): AsyncTask<Void, Void, List<List<LatLng>>>() {
+        override fun doInBackground(vararg params: Void?): List<List<LatLng>> {
+            val client = OkHttpClient()
+            val request = Request.Builder().url(url).build()
+            val response = client.newCall((request)).execute()
+            val data = response.body?.string()
+            val result = ArrayList<List<LatLng>>()
+            try {
+                Timber.tag("DIRECTION").i(data)
+                val resObj = Gson().fromJson(data, GoogleMapDTO::class.java)
+                val path = ArrayList<LatLng>()
+
+                for (i in 0 until resObj.routes[0].legs[0].steps.size) {
+//                    val startLatLng = LatLng(resObj.routes[0].legs[0].steps[i].start_location.lat.toDouble(),
+//                        resObj.routes[0].legs[0].steps[i].start_location.lng.toDouble())
+//                    path.add(startLatLng)
+//                    val endLatLng = LatLng(resObj.routes[0].legs[0].steps[i].end_location.lat.toDouble(),
+//                        resObj.routes[0].legs[0].steps[i].end_location.lng.toDouble())
+                    path.addAll(decodePolyLine(resObj.routes[0].legs[0].steps[i].polyline.points))
+                }
+                result.add(path)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            return result
+        }
+
+        override fun onPostExecute(result: List<List<LatLng>>) {
+            val lineOption = PolylineOptions()
+            for (i in result.indices) {
+                lineOption.addAll(result[i])
+                lineOption.width(10f)
+                lineOption.color(Color.BLUE)
+                lineOption.geodesic(true)
+            }
+            mMap.addPolyline(lineOption)
+        }
+
+    }
+
+    private fun decodePolyLine(poly: String): List<LatLng> {
+        val len = poly.length
+        var index = 0
+        val decoded = ArrayList<LatLng>()
+        var lat = 0
+        var lng = 0
+        while (index < len) {
+            var b: Int
+            var shift = 0
+            var result = 0
+            do {
+                b = poly[index++].toInt() - 63
+                result = result or (b and 0x1f shl shift)
+                shift += 5
+            } while (b >= 0x20)
+            val dlat = if (result and 1 != 0) (result shr 1).inv() else result shr 1
+            lat += dlat
+            shift = 0
+            result = 0
+            do {
+                b = poly[index++].toInt() - 63
+                result = result or (b and 0x1f shl shift)
+                shift += 5
+            } while (b >= 0x20)
+            val dlng = if (result and 1 != 0) (result shr 1).inv() else result shr 1
+            lng += dlng
+            decoded.add(
+                LatLng(
+                    lat / 100000.0, lng / 100000.0
+                )
+            )
+        }
+        return decoded
     }
 
 }
