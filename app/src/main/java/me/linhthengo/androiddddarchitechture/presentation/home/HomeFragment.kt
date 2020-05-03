@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -76,9 +77,14 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
     private lateinit var predictionList: List<AutocompletePrediction>
     private lateinit var mapView: View
     private val homeViewModel by viewModels<HomeViewModel>(factoryProducer = { viewModelFactory })
+    private val profileViewModel by viewModels<ProfileViewModel>(factoryProducer = { viewModelFactory })
 
     private fun handleAuthState(state: HomeViewModel.State) = handleSignOut(state)
+    private fun handleViewProfile(state: ProfileViewModel.State) = handleProfile(state)
+
+
     private val authStateObserver = Observer<HomeViewModel.State> { handleAuthState(it) }
+    private val viewProfileObserver = Observer<ProfileViewModel.State> { handleViewProfile(it) }
     private lateinit var fabOpen: Animation
     private lateinit var fabClose: Animation
     private lateinit var rotateCw: Animation
@@ -229,10 +235,16 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
                     homeViewModel.signOut()
                     true
                 }
+                R.id.profile -> {
+                    Log.d("HomeFragment", "vao profile")
+                    profileViewModel.profile()
+                    true
+                }
                 else -> false
             }
         }
         homeViewModel.state.observe(lifeCycleOwner, authStateObserver)
+        profileViewModel.state.observe(lifeCycleOwner, viewProfileObserver)
 
         val token = AutocompleteSessionToken.newInstance()
         searchBar.setOnSearchActionListener(object : MaterialSearchBar.OnSearchActionListener {
@@ -367,6 +379,7 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
     override fun onDestroyView() {
         super.onDestroyView()
         homeViewModel.state.removeObserver(authStateObserver)
+        profileViewModel.state.removeObserver(viewProfileObserver)
     }
 
     private fun bitmapDescriptorFromVector(
@@ -399,6 +412,20 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
             }
             is HomeViewModel.State.Success -> {
                 findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToSignInFragment())
+            }
+        }
+    }
+
+    private fun handleProfile(state: ProfileViewModel.State) {
+        when (state) {
+            is ProfileViewModel.State.Failure -> {
+                showErrorDialog(state.message) {
+                    Toast.makeText(context, " failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+            is ProfileViewModel.State.Success -> {
+                Log.println(Log.DEBUG, "HomeFragment", "success handle profile")
+                findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToProfileFragment())
             }
         }
     }

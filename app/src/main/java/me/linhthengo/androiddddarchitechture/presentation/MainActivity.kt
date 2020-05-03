@@ -1,11 +1,9 @@
 package me.linhthengo.androiddddarchitechture.presentation
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -15,7 +13,6 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import kotlinx.android.synthetic.main.activity_main.*
 import me.linhthengo.androiddddarchitechture.R
-import me.linhthengo.androiddddarchitechture.UI.UserProfileActivity
 import me.linhthengo.androiddddarchitechture.core.platform.BaseActivity
 
 
@@ -30,18 +27,18 @@ class MainActivity : BaseActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
 
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.profile -> {
-                val userProfile = Intent(applicationContext, UserProfileActivity::class.java)
-                startActivity(userProfile)
-                return true
-            }
-            else ->{
-                return super.onOptionsItemSelected(item)
-            }
-        }
-    }
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when(item.itemId){
+//            R.id.profile -> {
+//                val userProfile = Intent(applicationContext, UserProfileActivity::class.java)
+//                startActivity(userProfile)
+//                return true
+//            }
+//            else ->{
+//                return super.onOptionsItemSelected(item)
+//            }
+//        }
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
