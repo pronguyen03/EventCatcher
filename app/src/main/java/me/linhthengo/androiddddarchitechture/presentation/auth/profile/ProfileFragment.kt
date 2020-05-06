@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
-import android.widget.EditText
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -394,6 +393,8 @@ class ProfileFragment: BaseFragment(), EasyPermissions.PermissionCallbacks {
                     urlTask.result?.let {
                         imageUri = it
                         Toast.makeText(context, "OK", Toast.LENGTH_SHORT).show()
+//                        activity?.toast(imageUri.toString())
+                        Toast.makeText(context, imageUri.toString(), Toast.LENGTH_LONG)
                         image_view.setImageBitmap(bitmap)
                     }
                 }
