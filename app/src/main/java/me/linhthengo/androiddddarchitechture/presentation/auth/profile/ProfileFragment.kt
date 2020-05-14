@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.fragment_profile.*
 import me.linhthengo.androiddddarchitechture.R
@@ -246,7 +247,21 @@ class ProfileFragment: BaseFragment(), EasyPermissions.PermissionCallbacks {
 //            }
 //        }
 //    }
+    fun saveData(){
+    var fullname = edit_text_name.text.toString()
+    var phone = text_phone.text.toString()
+    var email = text_email.text.toString()
 
+    var map = mutableMapOf<String,Any>()
+    map["fullname"] = fullname
+    map["contact"] = phone
+    map["username"] = email
+
+    FirebaseFirestore.getInstance()
+        .collection("users")
+        .document()
+        .set(map)
+    }
 
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
         if (EasyPermissions.somePermissionPermanentlyDenied(this,perms)){
@@ -321,6 +336,7 @@ class ProfileFragment: BaseFragment(), EasyPermissions.PermissionCallbacks {
         }
 
         button_save.setOnClickListener {
+            saveData()
 
             val photo = when {
                 ::imageUri.isInitialized -> imageUri
