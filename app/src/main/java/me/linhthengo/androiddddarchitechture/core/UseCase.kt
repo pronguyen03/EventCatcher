@@ -1,10 +1,7 @@
 package me.linhthengo.androiddddarchitechture.core
 
 import arrow.core.Either
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 abstract class UseCase<out Type, in Params> where Type : Any {
 
@@ -13,9 +10,11 @@ abstract class UseCase<out Type, in Params> where Type : Any {
     operator fun invoke(
         params: Params,
         coroutineScope: CoroutineScope,
+        computeDispatcher: CoroutineDispatcher = Dispatchers.IO,
+        resultDispatcher: CoroutineDispatcher = Dispatchers.Main,
         onResult: (Either<Failure, Type>) -> Unit = {}
     ) = coroutineScope.launch {
-        val job = async(Dispatchers.IO) { run(params) }
-        launch(Dispatchers.Main) { onResult(job.await()) }
+        val job = async(computeDispatcher) { run(params) }
+        launch(resultDispatcher) { onResult(job.await()) }
     }
 }
