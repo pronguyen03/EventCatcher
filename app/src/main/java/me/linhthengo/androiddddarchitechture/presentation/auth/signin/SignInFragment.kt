@@ -1,6 +1,5 @@
 package me.linhthengo.androiddddarchitechture.presentation.auth.signin
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -19,7 +18,6 @@ import me.linhthengo.androiddddarchitechture.R
 import me.linhthengo.androiddddarchitechture.presentation.auth.AuthFragment
 import me.linhthengo.androiddddarchitechture.presentation.auth.AuthViewModel
 import me.linhthengo.androiddddarchitechture.presentation.auth.signin.SignInViewModel.Companion.GOOGLE_SIGN_IN_REQUEST_CODE
-import java.lang.Exception
 
 
 class SignInFragment : AuthFragment() {

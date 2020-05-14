@@ -20,6 +20,7 @@ abstract class AuthFragment : BaseFragment() {
 
     private val authStateObserver = Observer<AuthViewModel.State> { handleAuthState(it) }
 
+
     internal abstract fun handleAuthState(state: AuthViewModel.State)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

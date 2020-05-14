@@ -22,8 +22,24 @@ class MainActivity : BaseActivity() {
     private var mLocationPermissionGranted: Boolean = false
 
     private lateinit var appBarConfiguration: AppBarConfiguration
+
+
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when(item.itemId){
+//            R.id.profile -> {
+//                val userProfile = Intent(applicationContext, UserProfileActivity::class.java)
+//                startActivity(userProfile)
+//                return true
+//            }
+//            else ->{
+//                return super.onOptionsItemSelected(item)
+//            }
+//        }
+//    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         // Action Bar
         setSupportActionBar(findViewById(R.id.toolbar))
@@ -53,6 +69,7 @@ class MainActivity : BaseActivity() {
                     toolbar.visibility = View.VISIBLE
                 }
             }
+
         }
 
         // Location Permission
