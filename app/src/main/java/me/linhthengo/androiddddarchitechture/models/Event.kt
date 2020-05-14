@@ -3,6 +3,7 @@ package me.linhthengo.androiddddarchitechture.models
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 import me.linhthengo.androiddddarchitechture.enums.Category
+import java.util.*
 
 @Parcelize
 data class Event(
@@ -15,8 +16,8 @@ data class Event(
     var location: String = "",
     var locationName: String = "",
     var category: Category? = null,
-    var startDate: Long = System.currentTimeMillis(),
-    var endDate: Long? = null,
+    var startDate: Date = Date(),
+    var endDate: Date = Date(),
     var hostId: String? = "",
     var hostName: String? = "",
     var listInterest: MutableList<User> = mutableListOf(),

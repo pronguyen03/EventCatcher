@@ -54,7 +54,7 @@ class EventDetailFragment: BaseFragment() {
         Picasso.get().load(event.image).into(title_image)
         val sdf = SimpleDateFormat("E, dd/MM/YY 'at' HH:mm", Locale.UK)
 
-        val startDate = Date(event.startDate)
+        val startDate = event.startDate
         title_date.text = SimpleDateFormat("dd", Locale.UK).format(startDate)
         title_month.text = SimpleDateFormat("MMM", Locale.UK).format(startDate)
         title_name.text = event.name
