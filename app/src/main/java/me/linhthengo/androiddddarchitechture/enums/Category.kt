@@ -23,5 +23,6 @@ enum class Category {
     SPORTS,
     THEATRE,
     WELLNESS,
-    OTHERS
+    OTHERS,
+    ALL
 }

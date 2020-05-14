@@ -16,9 +16,7 @@ import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
-import android.widget.RelativeLayout
-import android.widget.SeekBar
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -47,7 +45,6 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.mancj.materialsearchbar.MaterialSearchBar
 import com.mancj.materialsearchbar.adapter.SuggestionsAdapter
 import kotlinx.android.synthetic.main.dialog_discover_event.*
@@ -114,6 +111,7 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
     private var listEvents: MutableList<Event> = mutableListOf<Event>()
     private var filterOngoing = true
     private var filterUpcoming = false
+    private var filterCategory = "All"
     private var filterScope = 40
     private lateinit var searchMarker: Marker
 
@@ -435,18 +433,18 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
             }
         }
 
-        val listEventsJson = sharedPreferences.getString(TAG_LIST_EVENTS, "")
-        if (listEventsJson != null && listEventsJson != "") {
-            val type = object : TypeToken<MutableList<Event>>() {}.type
-            listEvents = Gson().fromJson(listEventsJson, type)
-            if (listEvents.size > 0) {
-                displayEventsToMap()
-            } else {
-                filterEvents(filterUpcoming, filterOngoing, filterScope, startDate)
-            }
-        } else {
-            filterEvents(filterUpcoming, filterOngoing, filterScope, startDate)
-        }
+//        val listEventsJson = sharedPreferences.getString(TAG_LIST_EVENTS, "")
+//        if (listEventsJson != null && listEventsJson != "") {
+//            val type = object : TypeToken<MutableList<Event>>() {}.type
+//            listEvents = Gson().fromJson(listEventsJson, type)
+//            if (listEvents.size > 0) {
+//                displayEventsToMap()
+//            } else {
+//                filterEvents(filterUpcoming, filterOngoing, filterCategory, filterScope, startDate)
+//            }
+//        } else {
+        filterEvents(filterUpcoming, filterOngoing, filterCategory, filterScope, startDate)
+//        }
 
         val args = arguments
         val eventDirection: Event? = args?.getParcelable("EVENT_DIRECTION")
@@ -488,99 +486,90 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
         val position = LatLng(event.locationLat, event.locationLng)
         markerOptions.position(position)
 
-        if (event.category == Category.MUSIC) {
-            markerOptions.icon(
+        when (event.category) {
+            Category.ART -> markerOptions.icon(
                 bitmapDescriptorFromVector(
                     requireContext(),
-                    R.drawable.ic_concert
+                    R.drawable.marker_art
                 )
             )
-        } else {
-            markerOptions.icon(
+            Category.DRINKS -> markerOptions.icon(
                 bitmapDescriptorFromVector(
                     requireContext(),
-                    R.drawable.ic_location_pin
+                    R.drawable.marker_drink
                 )
             )
+            Category.FILM -> markerOptions.icon(
+                bitmapDescriptorFromVector(
+                    requireContext(),
+                    R.drawable.marker_film
+                )
+            )
+            Category.FITNESS -> markerOptions.icon(
+                bitmapDescriptorFromVector(
+                    requireContext(),
+                    R.drawable.marker_fitness
+                )
+            )
+            Category.FOOD -> markerOptions.icon(
+                bitmapDescriptorFromVector(
+                    requireContext(),
+                    R.drawable.marker_food
+                )
+            )
+            Category.GAMES -> markerOptions.icon(
+                bitmapDescriptorFromVector(
+                    requireContext(),
+                    R.drawable.marker_game
+                )
+            )
+            Category.HEALTH -> markerOptions.icon(
+                bitmapDescriptorFromVector(
+                    requireContext(),
+                    R.drawable.marker_health
+                )
+            )
+            Category.HOME -> markerOptions.icon(
+                bitmapDescriptorFromVector(
+                    requireContext(),
+                    R.drawable.marker_home
+                )
+            )
+            Category.MUSIC -> markerOptions.icon(
+                bitmapDescriptorFromVector(
+                    requireContext(),
+                    R.drawable.marker_music
+                )
+            )
+            Category.SHOPPING -> markerOptions.icon(
+                bitmapDescriptorFromVector(
+                    requireContext(),
+                    R.drawable.marker_shopping
+                )
+            )
+            Category.SPORTS -> markerOptions.icon(
+                bitmapDescriptorFromVector(
+                    requireContext(),
+                    R.drawable.marker_sport
+                )
+            )
+            else -> {
+                markerOptions.icon(
+                    bitmapDescriptorFromVector(
+                        requireContext(),
+                        R.drawable.ic_event_available_black_24dp
+                    )
+                )
+            }
         }
         val marker = mMap.addMarker(markerOptions)
         marker.tag = event
     }
 
-    fun onInfoWindowClick(marker: Marker?) {
-//        if (marker?.tag !is null)
-//        {
-//            if (marker.getTag() instanceof  Report) {
-//                Report report = (Report) marker.getTag();
-//                boolean isVoted = false;
-//                tvTitleInfoReport.setText(report.getTitle());
-//                tvDescriptionInfoReport.setText(report.getContent());
-//                StringBuilder builder = new StringBuilder();
-//                builder.append(report.getRemainingTime()/3600);
-//                builder.append(" ");
-//                builder.append(getString(R.string.mins));
-//                tvRemainingTimeInfoReport.setText(builder.toString());
-//                tvReporterNameInfoReport.setText(report.getReporter().getUsername());
-//                tvUpVoteInfoReport.setText(String.valueOf(report.getUpVote()));
-//                tvDownVoteInfoReport.setText(String.valueOf(report.getDownVote()));
-//                tvPostedDateInfoReport.setText(new SimpleDateFormat("dd/MM/yyyy", Locale.US).format(report.getPostDate()));
-//                ivDownVoteInfoReport.setOnClickListener(l -> {
-//                    int currentUpVote = report.getUpVote();
-//                    int currentDownVote = report.getDownVote();
-//                    if (ivDownVoteInfoReport.isEnabled()) {
-//                        if (currentUpVote > 0) {
-//                            report.setUpVote(--currentUpVote);
-//                            tvUpVoteInfoReport.setText(String.valueOf(currentUpVote));
-//                        }
-//                        report.setDownVote(++currentDownVote);
-//                        tvDownVoteInfoReport.setText(String.valueOf(currentDownVote));
-//                        ivDownVoteInfoReport.setEnabled(false);
-//                        ivUpVoteInfoReport.setEnabled(true);
-//                        Map<String, Object> vote = new HashMap<>();
-//                        vote.put("downVote", currentDownVote);
-//                        vote.put("upVote", currentUpVote);
-//                        databaseReference.child("reports")
-//                            .child(report.getId())
-//                            .updateChildren(vote)
-//                            .addOnCompleteListener(task -> {
-//                            showToastMessage("Vote down successfully!");
-//                        });
-//                    }
-//                });
-//                ivUpVoteInfoReport.setOnClickListener(l -> {
-//                    int currentUpVote = report.getUpVote();
-//                    int currentDownVote = report.getDownVote();
-//                    if (ivUpVoteInfoReport.isEnabled()) {
-//                        if (currentDownVote > 0) {
-//                            report.setDownVote(--currentDownVote);
-//                            tvDownVoteInfoReport.setText(String.valueOf(currentDownVote));
-//                        }
-//                        report.setUpVote(++currentUpVote);
-//                        tvUpVoteInfoReport.setText(String.valueOf(currentUpVote));
-//                        ivUpVoteInfoReport.setEnabled(false);
-//                        ivDownVoteInfoReport.setEnabled(true);
-//                        Map<String, Object> vote = new HashMap<>();
-//                        vote.put("downVote", currentDownVote);
-//                        vote.put("upVote", currentUpVote);
-//                        databaseReference.child("reports")
-//                            .child(report.getId())
-//                            .updateChildren(vote)
-//                            .addOnCompleteListener(task -> {
-//                            showToastMessage("Vote up successfully!");
-//                        });
-//                    }
-//                });
-//                Log.e("size of report image: ",report.getImageName().size()+"");
-//                downloadImageAdapter.setImageUrl(report.getImageName());
-//                downloadImageAdapter.notifyDataSetChanged();
-//                dialogInfoReport.show();
-//            }
-//        }
-    }
-
     private fun filterEvents(
         isUpcoming: Boolean,
         isOngoing: Boolean,
+        category: String,
         scope: Int,
         startDate: Calendar
     ) {
@@ -600,9 +589,11 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                         val eventStartDate = document.data["startDate"] as Timestamp
                         val locationLat = document.data["locationLat"] as Double
                         val locationLng = document.data["locationLng"] as Double
+                        val categoryData = document.data["category"].toString()
                         if (eventStartDate < currentDateTimestamp &&
                             (getDistanceBetweenPoints(locationLat, locationLng, currentLat, currentLng) <= scope ||
-                                    getDistanceBetweenPoints(currentLat, currentLng, locationLat, locationLng) <= scope)
+                                    getDistanceBetweenPoints(currentLat, currentLng, locationLat, locationLng) <= scope) &&
+                            (category === "All" || categoryData === category)
                         ) {
                             listEvents.add(document)
                         }
@@ -630,8 +621,10 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                         task.result!!.forEach { document ->
                             val locationLat = document.data["locationLat"] as Double
                             val locationLng = document.data["locationLng"] as Double
-                            if (getDistanceBetweenPoints(locationLat, locationLng, currentLat, currentLng) <= scope ||
-                                getDistanceBetweenPoints(currentLat, currentLng, locationLat, locationLng) <= scope
+                            val categoryData = document.data["category"].toString()
+                            if ((getDistanceBetweenPoints(locationLat, locationLng, currentLat, currentLng) <= scope ||
+                                getDistanceBetweenPoints(currentLat, currentLng, locationLat, locationLng) <= scope) &&
+                                (category === "All" || categoryData === category)
                             ) {
                                 listEvents.add(document)
                             }
@@ -659,8 +652,8 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
             event.location = document.data["location"].toString()
             event.locationName = document.data["locationName"].toString()
             event.category = Category.valueOf(document.data["category"].toString().toUpperCase())
-            event.startDate = (document.data["startDate"] as Timestamp).seconds
-            event.endDate = (document.data["endDate"] as Timestamp).seconds
+            event.startDate = (document.data["startDate"] as Timestamp).toDate()
+            event.endDate = (document.data["endDate"] as Timestamp).toDate()
             event.hostId = document.data["hostId"].toString()
             event.hostName = document.data["hostName"].toString()
             val listInterest =
@@ -755,8 +748,55 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
             }
 
             btn_explore_dialog.setOnClickListener {
-                filterEvents(filterUpcoming, filterOngoing, filterScope, startDate)
+                filterEvents(filterUpcoming, filterOngoing, filterCategory, filterScope, startDate)
                 dismiss()
+            }
+
+            val listCategory = arrayOf(
+                "All",
+                "Art",
+                "Causes",
+                "Comedy",
+                "Crafts",
+                "Dance",
+                "Drinks",
+                "Film",
+                "Fitness",
+                "Food",
+                "Games",
+                "Gardening",
+                "Health",
+                "Home",
+                "Literature",
+                "Music",
+                "Networking",
+                "Party",
+                "Religion",
+                "Shopping",
+                "Sports",
+                "Theater",
+                "Wellness",
+                "Other"
+            )
+
+            spinner_choose_event.adapter = ArrayAdapter(requireContext(),R.layout.support_simple_spinner_dropdown_item, listCategory)
+
+            spinner_choose_event.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    filterCategory = listCategory[0]
+                    spinner_choose_event.setSelection(0)
+                }
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    filterCategory = listCategory[position]
+                }
+
+
             }
 
             // Scope Bar
@@ -856,11 +896,11 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
 
     }
 
-    fun getDirectionURL(origin: LatLng, destination: LatLng, directionMode: String): String {
-        val str_origin = "origin=${origin.latitude},${origin.longitude}"
-        val str_dest = "destination=${destination.latitude},${destination.longitude}";
+    private fun getDirectionURL(origin: LatLng, destination: LatLng, directionMode: String): String {
+        val strOrigin = "origin=${origin.latitude},${origin.longitude}"
+        val strDest = "destination=${destination.latitude},${destination.longitude}";
         val mode = "mode=${directionMode}"
-        val parameters = "${str_origin}&${str_dest}&${mode}"
+        val parameters = "${strOrigin}&${strDest}&${mode}"
         val output = "json"
         return "https://maps.googleapis.com/maps/api/directions/${output}?${parameters}&key=${getString(R.string.google_maps_key)}"
     }

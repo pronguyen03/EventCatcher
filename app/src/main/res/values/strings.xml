@@ -54,4 +54,7 @@
     <string name="see_all">See All</string>
     <string name="zero">0</string>
     <string name="direction">Direction</string>
+    <string name="logo">LOGO</string>
+    <string name="choose_event">Choose Event</string>
+    <string name="event_category">Category</string>
 </resources>
