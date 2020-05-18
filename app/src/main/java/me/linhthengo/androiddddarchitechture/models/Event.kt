@@ -21,5 +21,7 @@ data class Event(
     var hostId: String? = "",
     var hostName: String? = "",
     var listInterest: MutableList<User> = mutableListOf(),
-    var listParticipant: MutableList<User> = mutableListOf()
+    var listParticipant: MutableList<User> = mutableListOf(),
+    var isInterested: Boolean = false,
+    var isGoing: Boolean = false
 ) : Parcelable

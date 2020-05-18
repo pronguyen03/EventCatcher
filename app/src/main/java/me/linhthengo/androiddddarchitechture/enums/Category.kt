@@ -24,5 +24,6 @@ enum class Category {
     THEATRE,
     WELLNESS,
     OTHERS,
-    ALL
+    ALL,
+    NULL
 }

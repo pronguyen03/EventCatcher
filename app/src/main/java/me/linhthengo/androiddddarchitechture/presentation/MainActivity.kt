@@ -18,6 +18,7 @@ import me.linhthengo.androiddddarchitechture.core.platform.BaseActivity
 class MainActivity : BaseActivity() {
     override fun layoutId(): Int = R.layout.activity_main
 
+
     private val PERMISSION_REQUEST_CODE = 9001
     private var mLocationPermissionGranted: Boolean = false
 
@@ -66,6 +67,9 @@ class MainActivity : BaseActivity() {
                     toolbar.visibility = View.GONE
                 }
                 R.id.eventDetailFragment -> {
+                    toolbar.visibility = View.VISIBLE
+                }
+                R.id.listEventsFragment -> {
                     toolbar.visibility = View.VISIBLE
                 }
             }

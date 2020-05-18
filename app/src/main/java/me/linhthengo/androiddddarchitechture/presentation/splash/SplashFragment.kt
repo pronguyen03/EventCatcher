@@ -1,6 +1,7 @@
 package me.linhthengo.androiddddarchitechture.presentation.splash
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -17,7 +18,6 @@ class SplashFragment : BaseFragment() {
     lateinit var firebaseAuthManager: FirebaseAuthManager
 
     override fun layoutId(): Int = R.layout.splash_fragment
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
