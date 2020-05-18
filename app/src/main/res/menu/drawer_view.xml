@@ -10,7 +10,7 @@
             android:icon="@drawable/ic_explore"
             android:title="@string/discover_place" />
         <item
-            android:id="@+id/discover_event"
+            android:id="@+id/your_event"
             android:icon="@drawable/ic_event_black_24dp"
             android:title="@string/your_events" />
     </group>

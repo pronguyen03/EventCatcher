@@ -46,6 +46,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.mancj.materialsearchbar.MaterialSearchBar
 import com.mancj.materialsearchbar.adapter.SuggestionsAdapter
 import kotlinx.android.synthetic.main.dialog_discover_event.*
@@ -212,6 +213,11 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                 R.id.profile -> {
                     Log.d("HomeFragment", "vao profile")
                     profileViewModel.profile()
+                    true
+                }
+                R.id.your_event -> {
+                    Log.d("HomeFragment", "List Events Fragment")
+                    findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToListEventsFragment())
                     true
                 }
                 else -> false
@@ -445,11 +451,6 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
         mMap.setOnInfoWindowClickListener { marker ->
             marker?.run {
                 if (this.tag is Event) {
-                    val gson = Gson()
-                    val listEventJson  = gson.toJson(listEvents)
-                    val editor = sharedPreferences.edit()
-                    editor.putString(TAG_LIST_EVENTS, listEventJson)
-                    editor.apply()
                     val event = this.tag as Event
                     val bundle = bundleOf("event" to event)
                     findNavController().navigate(
@@ -460,18 +461,18 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
             }
         }
 
-//        val listEventsJson = sharedPreferences.getString(TAG_LIST_EVENTS, "")
-//        if (listEventsJson != null && listEventsJson != "") {
-//            val type = object : TypeToken<MutableList<Event>>() {}.type
-//            listEvents = Gson().fromJson(listEventsJson, type)
-//            if (listEvents.size > 0) {
-//                displayEventsToMap()
-//            } else {
-//                filterEvents(filterUpcoming, filterOngoing, filterCategory, filterScope, startDate)
-//            }
-//        } else {
-        filterEvents(filterUpcoming, filterOngoing, filterCategory, filterScope, startDate)
-//        }
+        val listEventsJson = sharedPreferences.getString(TAG_LIST_EVENTS, "")
+        if (listEventsJson != null && listEventsJson != "") {
+            val type = object : TypeToken<MutableList<Event>>() {}.type
+            listEvents = Gson().fromJson(listEventsJson, type)
+            if (listEvents.size > 0) {
+                displayEventsToMap()
+            } else {
+                filterEvents(filterUpcoming, filterOngoing, filterCategory, filterScope, startDate)
+            }
+        } else {
+            filterEvents(filterUpcoming, filterOngoing, filterCategory, filterScope, startDate)
+        }
 
         val args = arguments
         val eventDirection: Event? = args?.getParcelable("EVENT_DIRECTION")
@@ -620,7 +621,7 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                         if (eventStartDate < currentDateTimestamp &&
                             (getDistanceBetweenPoints(locationLat, locationLng, currentLat, currentLng) <= scope ||
                                     getDistanceBetweenPoints(currentLat, currentLng, locationLat, locationLng) <= scope) &&
-                            (category === "All" || categoryData === category)
+                            (category == "All" || categoryData == category)
                         ) {
                             listEvents.add(document)
                         }
@@ -651,11 +652,12 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                             val categoryData = document.data["category"].toString()
                             if ((getDistanceBetweenPoints(locationLat, locationLng, currentLat, currentLng) <= scope ||
                                 getDistanceBetweenPoints(currentLat, currentLng, locationLat, locationLng) <= scope) &&
-                                (category === "All" || categoryData === category)
+                                (category == "All" || categoryData == category)
                             ) {
                                 listEvents.add(document)
                             }
                         }
+
                         bindDataEvents(listEvents)
                     } else {
                         Timber.tag(TAG).d(task.exception, "Error getting events ")
@@ -708,6 +710,12 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
             }
             listEvents.add(event)
         }
+
+        val gson = Gson()
+        val listEventJson  = gson.toJson(listEvents)
+        val editor = sharedPreferences.edit()
+        editor.putString(TAG_LIST_EVENTS, listEventJson)
+        editor.apply()
         displayEventsToMap()
     }
 
