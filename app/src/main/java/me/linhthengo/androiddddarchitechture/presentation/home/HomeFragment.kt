@@ -78,13 +78,19 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
     private lateinit var mapView: View
     private val homeViewModel by viewModels<HomeViewModel>(factoryProducer = { viewModelFactory })
     private val profileViewModel by viewModels<ProfileViewModel>(factoryProducer = { viewModelFactory })
+    private val tutorialViewModel by viewModels<TutorialViewModel>(factoryProducer = { viewModelFactory })
+    private val yourEventViewModel by viewModels<YourEventViewModel>(factoryProducer = { viewModelFactory })
 
     private fun handleAuthState(state: HomeViewModel.State) = handleSignOut(state)
     private fun handleViewProfile(state: ProfileViewModel.State) = handleProfile(state)
-
+    private fun handleViewTutorial(state: TutorialViewModel.State) = handleTutorial(state)
+    private fun handleViewYourEvent(state: YourEventViewModel.State) = handleYourEvent(state)
 
     private val authStateObserver = Observer<HomeViewModel.State> { handleAuthState(it) }
     private val viewProfileObserver = Observer<ProfileViewModel.State> { handleViewProfile(it) }
+    private val viewTutorialObserver = Observer<TutorialViewModel.State> { handleViewTutorial(it) }
+    private val viewYourEventObserver = Observer<YourEventViewModel.State> { handleViewYourEvent(it) }
+
     private lateinit var fabOpen: Animation
     private lateinit var fabClose: Animation
     private lateinit var rotateCw: Animation
@@ -240,11 +246,21 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
                     profileViewModel.profile()
                     true
                 }
+                R.id.tutorial -> {
+                    tutorialViewModel.tutorial()
+                    true
+                }
+                R.id.discover_event -> {
+                    yourEventViewModel.yourEvent()
+                    true
+                }
                 else -> false
             }
         }
         homeViewModel.state.observe(lifeCycleOwner, authStateObserver)
         profileViewModel.state.observe(lifeCycleOwner, viewProfileObserver)
+        tutorialViewModel.state.observe(lifeCycleOwner, viewTutorialObserver)
+        yourEventViewModel.state.observe(lifeCycleOwner, viewYourEventObserver)
 
         val token = AutocompleteSessionToken.newInstance()
         searchBar.setOnSearchActionListener(object : MaterialSearchBar.OnSearchActionListener {
@@ -380,6 +396,8 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
         super.onDestroyView()
         homeViewModel.state.removeObserver(authStateObserver)
         profileViewModel.state.removeObserver(viewProfileObserver)
+        tutorialViewModel.state.removeObserver(viewTutorialObserver)
+        yourEventViewModel.state.removeObserver(viewYourEventObserver)
     }
 
     private fun bitmapDescriptorFromVector(
@@ -429,6 +447,36 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback,
             }
         }
     }
+
+    private fun handleTutorial(state: TutorialViewModel.State) {
+        when (state) {
+            is TutorialViewModel.State.Failure -> {
+                showErrorDialog(state.message) {
+                    Toast.makeText(context, " failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+            is TutorialViewModel.State.Success -> {
+//                Log.println(Log.DEBUG, "HomeFragment", "success handle profile")
+                findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToTutorialFragment())
+            }
+        }
+    }
+
+    private fun handleYourEvent(state: YourEventViewModel.State) {
+        when (state) {
+            is YourEventViewModel.State.Failure -> {
+                showErrorDialog(state.message) {
+                    Toast.makeText(context, " failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+            is YourEventViewModel.State.Success -> {
+//                Log.println(Log.DEBUG, "HomeFragment", "success handle profile")
+                findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToYourEventFragment())
+            }
+        }
+    }
+
+
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)

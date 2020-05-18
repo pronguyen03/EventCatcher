@@ -16,4 +16,5 @@ abstract class AuthViewModel : BaseViewModel() {
 
     abstract fun handleFailure(failure: Failure)
     abstract fun handleSuccess(firebaseUser: FirebaseUser)
+
 }

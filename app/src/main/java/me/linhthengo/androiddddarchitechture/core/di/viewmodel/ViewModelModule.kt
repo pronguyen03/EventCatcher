@@ -9,6 +9,8 @@ import me.linhthengo.androiddddarchitechture.presentation.auth.signin.SignInView
 import me.linhthengo.androiddddarchitechture.presentation.auth.signup.SignUpViewModel
 import me.linhthengo.androiddddarchitechture.presentation.home.HomeViewModel
 import me.linhthengo.androiddddarchitechture.presentation.home.ProfileViewModel
+import me.linhthengo.androiddddarchitechture.presentation.home.TutorialViewModel
+import me.linhthengo.androiddddarchitechture.presentation.home.YourEventViewModel
 
 @Module
 abstract class ViewModelModule {
@@ -35,5 +37,14 @@ abstract class ViewModelModule {
     @ViewModelKey(ProfileViewModel::class)
     internal abstract fun profileViewModel(viewModel: ProfileViewModel): ViewModel
 
+    @Binds
+    @IntoMap
+    @ViewModelKey(TutorialViewModel::class)
+    internal abstract fun tutorialViewModel(viewModel: TutorialViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(YourEventViewModel::class)
+    internal abstract fun yourEventViewModel(viewModel: YourEventViewModel): ViewModel
     //Add more ViewModels here
 }
