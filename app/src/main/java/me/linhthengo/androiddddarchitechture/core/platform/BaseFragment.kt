@@ -48,7 +48,7 @@ abstract class BaseFragment : DaggerFragment() {
     }
 
     internal fun showErrorDialog(message: String, onCloseClicked: () -> Unit) {
-        MaterialAlertDialogBuilder(context)
+        MaterialAlertDialogBuilder(requireActivity())
             .setTitle(R.string.sign_in_failure)
             .setMessage(getString(R.string.error_s).format(message))
             .setPositiveButton(R.string.close) { _, _ ->

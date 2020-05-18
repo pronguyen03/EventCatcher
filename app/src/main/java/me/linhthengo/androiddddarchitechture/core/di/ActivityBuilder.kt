@@ -6,8 +6,12 @@ import me.linhthengo.androiddddarchitechture.presentation.MainActivity
 import me.linhthengo.androiddddarchitechture.presentation.auth.profile.ProfileFragmentProvider
 import me.linhthengo.androiddddarchitechture.presentation.auth.signin.SignInFragmentProvider
 import me.linhthengo.androiddddarchitechture.presentation.auth.signup.SignUpFragmentProvider
+
 import me.linhthengo.androiddddarchitechture.presentation.auth.tutorial.TutorialFragmentProvider
 import me.linhthengo.androiddddarchitechture.presentation.auth.yourevent.YourEventFragmentProvider
+
+import me.linhthengo.androiddddarchitechture.presentation.event.EventDetailFragmentProvider
+
 import me.linhthengo.androiddddarchitechture.presentation.home.HomeFragmentProvider
 import me.linhthengo.androiddddarchitechture.presentation.splash.SplashFragmentProvider
 
@@ -20,9 +24,14 @@ interface ActivityBuilder {
             SignInFragmentProvider::class,
             SignUpFragmentProvider::class,
             HomeFragmentProvider::class,
+
             ProfileFragmentProvider::class,
             TutorialFragmentProvider::class,
             YourEventFragmentProvider::class
+
+            EventDetailFragmentProvider::class,
+            ProfileFragmentProvider::class
+
         ]
     )
     fun buildMainActivity(): MainActivity

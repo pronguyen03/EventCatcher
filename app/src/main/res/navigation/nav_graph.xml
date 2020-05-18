@@ -14,6 +14,9 @@
             android:id="@+id/action_homeFragment_to_signInFragment"
             app:destination="@id/signInFragment" />
         <action
+            android:id="@+id/action_homeFragment_to_eventDetailFragment"
+            app:destination="@id/eventDetailFragment" />
+        <action
             android:id="@+id/action_homeFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
         <action
@@ -81,7 +84,7 @@
         android:id="@+id/Phone"
         android:name="me.linhthengo.androiddddarchitechture.presentation.auth.profile.VerifyPhoneFragment"
         android:label="Phone"
-        tools:layout="@layout/fragment_verify_phone">>
+        tools:layout="@layout/fragment_verify_phone">
         <action
             android:id="@+id/action_Phone_to_profileFragment"
             app:destination="@id/profileFragment" />
@@ -125,5 +128,14 @@
         android:name="me.linhthengo.androiddddarchitechture.presentation.auth.signup.SignUpFragment"
         android:label="Sign Up"
         tools:layout="@layout/sign_up_fragment" />
+    <fragment
+        android:id="@+id/eventDetailFragment"
+        android:name="me.linhthengo.androiddddarchitechture.presentation.event.EventDetailFragment"
+        android:label="Event Detail"
+        tools:layout="@layout/event_detail">
+        <action
+            android:id="@+id/action_eventDetailFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
 
 </navigation>
