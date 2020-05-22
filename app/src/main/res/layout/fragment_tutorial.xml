@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.auth.tutorial.TutorialFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="202dp"
+            android:layout_height="140dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="50dp"
+            android:background="@drawable/logo"
+            tools:layout_editor_absoluteX="-33dp"
+            tools:layout_editor_absoluteY="33dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:text="Tutorial"
+            android:textColor="#080808"
+            android:textSize="40sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
+            android:text="INTRODUCTION"
+            android:textColor="#080808"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="The application will help you discover the events, places more vivid and intuitive through a map without spending a lot of time. This make you more active, excited in the events."
+            android:textColor="#080808" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:text="Enhance user experience related to event hosting."
+            android:textColor="#080808" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:text="So far, with strong development trend and increasing needs of people, the events and festival are celebrated more and more often. However, the current application (All Events In City, Eventbrite) just show them by simple, monotonic, boring notification Therefore, we decide to develop a map application which helps user can discover the happening or upcoming event nearing more vivid and intuitive without spending a lot of time. Besides, we also provide user to feature which help them to ask for help from other users in case they get unfortunately troubles on their way coming to event."
+            android:textColor="#080808" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
+            android:text="DISCOVER"
+            android:textColor="#080808"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:text="-	Users can discover the necessary and important places, such as: Gas station, restaurant, tourist places with filtered results."
+            android:textColor="#080808" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:text="-	Users can discover upcoming or happening events, festival, concert, holiday events near their location. Also, they can make their own activity to attract others enjoy with them. This make them become more active."
+            android:textColor="#080808" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
+            android:text="APPLICATION DEVELOPERS"
+            android:textColor="#080808"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="5dp"
+            android:text="- Nguyễn Anh Nguyên"
+            android:textColor="#080808"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="5dp"
+            android:text="- Lê Quốc Huy"
+            android:textColor="#080808"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="5dp"
+            android:text="- Trần Quốc Trung"
+            android:textColor="#080808"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="5dp"
+            android:text="- Vũ Đức Nguyên"
+            android:textColor="#080808"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/button_back"
+            android:layout_marginTop="15dp"
+            android:textColor="@android:color/white"
+            android:background="?colorPrimary"
+            android:textAllCaps="false"
+            android:layout_gravity="center_horizontal"
+            android:text="Back"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+</ScrollView>

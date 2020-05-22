@@ -39,7 +39,7 @@ class VerifyPhoneFragment : Fragment() {
 
             val phone = edit_text_phone.text.toString().trim()
 
-            if (phone.isEmpty() || phone.length != 10) {
+            if (phone.isEmpty() || phone.length != 9) {
                 edit_text_phone.error = "Enter a valid phone"
                 edit_text_phone.requestFocus()
                 return@setOnClickListener

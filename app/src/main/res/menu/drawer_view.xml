@@ -6,24 +6,12 @@
             android:icon="@drawable/ic_user"
             android:title="@string/your_profile" />
         <item
-            android:id="@+id/discover_place"
-            android:icon="@drawable/ic_explore"
-            android:title="@string/discover_place" />
-        <item
             android:id="@+id/your_event"
             android:icon="@drawable/ic_event_black_24dp"
             android:title="@string/your_events" />
     </group>
 
     <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/setting"
-            android:icon="@drawable/ic_settings_black_24dp"
-            android:title="@string/setting" />
-        <item
-            android:id="@+id/feedback"
-            android:icon="@drawable/ic_feedback_black_24dp"
-            android:title="@string/feedback" />
         <item
             android:id="@+id/tutorial"
             android:icon="@drawable/ic_help_black_24dp"
