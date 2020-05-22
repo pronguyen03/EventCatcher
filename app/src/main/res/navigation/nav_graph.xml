@@ -22,6 +22,9 @@
         <action
             android:id="@+id/action_homeFragment_to_listEventsFragment"
             app:destination="@id/listEventsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_tutorialFragment"
+            app:destination="@id/tutorialFragment" />
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
@@ -114,6 +117,18 @@
         tools:layout="@layout/event_detail">
         <action
             android:id="@+id/action_eventDetailFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/tutorialFragment"
+        android:name="me.linhthengo.androiddddarchitechture.presentation.auth.tutorial.TutorialFragment"
+        android:label="Tutorial"
+        tools:layout="@layout/fragment_tutorial" >
+        <action
+            android:id="@+id/action_tutorialFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+        <action
+            android:id="@+id/action_tutorialFragment_to_homeFragment2"
             app:destination="@id/homeFragment" />
     </fragment>
     <fragment

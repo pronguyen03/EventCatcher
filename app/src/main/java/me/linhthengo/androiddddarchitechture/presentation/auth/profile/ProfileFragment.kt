@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.fragment_profile.*
@@ -252,16 +253,22 @@ class ProfileFragment: BaseFragment(), EasyPermissions.PermissionCallbacks {
     var phone = text_phone.text.toString()
     var email = text_email.text.toString()
 
+    var uid = FirebaseAuth.getInstance().currentUser?.uid
+
+
+
     var map = mutableMapOf<String,Any>()
     map["fullname"] = fullname
     map["contact"] = phone
     map["username"] = email
+    map["uid"] = FirebaseFirestore.getInstance().collection("users").document().id
 
     FirebaseFirestore.getInstance()
         .collection("users")
         .document()
         .set(map)
     }
+
 
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
         if (EasyPermissions.somePermissionPermanentlyDenied(this,perms)){
