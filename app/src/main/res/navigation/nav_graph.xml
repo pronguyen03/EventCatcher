@@ -134,6 +134,10 @@
     <fragment
         android:id="@+id/listEventsFragment"
         android:name="me.linhthengo.androiddddarchitechture.presentation.event.ListEventsFragment"
-        android:label="ListEventsFragment" />
+        android:label="Your Events" >
+        <action
+            android:id="@+id/action_listEventsFragment_to_eventDetailFragment"
+            app:destination="@id/eventDetailFragment" />
+    </fragment>
 
 </navigation>
