@@ -1,5 +1,6 @@
 package me.linhthengo.androiddddarchitechture.presentation.home
 
+import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
@@ -90,8 +91,6 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
         const val TAG_LIST_EVENTS = "LIST_EVENTS"
         const val TAG_LAT = "CURRENT_LAT"
         const val TAG_LNG = "CURRENT_LNG"
-        const val DIRECTION_EVENT = "DIRECTION_EVENT"
-        const val CURRENT_EVENT_PLACE = "CURRENT_EVENT_PLACE"
     }
 
     private lateinit var mMap: GoogleMap
@@ -276,6 +275,8 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
                     if (searchText != searchFor) {
                         return@launch
                     }
+
+
                     val predictionsRequest = FindAutocompletePredictionsRequest.builder()
                         .setCountry("VN")
                         .setSessionToken(token)
@@ -881,28 +882,28 @@ class HomeFragment : BaseFragment(), CoroutineScope, OnMapReadyCallback {
             })
             sb_scope.progress = filterScope
 
-            // Start Date
-//            val format = "MM/dd/yyyy"
-//            val sdf = SimpleDateFormat(format, Locale.getDefault())
-//            edt_start_date.setText(sdf.format(startDate.time))
-//            val startDateCallback =
-//                DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
-//                    startDate.set(Calendar.YEAR, year)
-//                    startDate.set(Calendar.MONTH, month)
-//                    startDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-//                    edt_start_date.setText(sdf.format(startDate.time))
-//                }
-//            edt_start_date.setOnClickListener {
-//                val datePickerDialog = DatePickerDialog(
-//                    requireActivity(),
-//                    startDateCallback,
-//                    startDate.get(Calendar.YEAR),
-//                    startDate.get(Calendar.MONTH),
-//                    startDate.get(Calendar.DAY_OF_MONTH)
-//                )
-//                datePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000
-//                datePickerDialog.show()
-//            }
+//             Start Date
+            val format = "MM/dd/yyyy"
+            val sdf = SimpleDateFormat(format, Locale.getDefault())
+            edt_start_date.setText(sdf.format(startDate.time))
+            val startDateCallback =
+                DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
+                    startDate.set(Calendar.YEAR, year)
+                    startDate.set(Calendar.MONTH, month)
+                    startDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                    edt_start_date.setText(sdf.format(startDate.time))
+                }
+            edt_start_date.setOnClickListener {
+                val datePickerDialog = DatePickerDialog(
+                    requireActivity(),
+                    startDateCallback,
+                    startDate.get(Calendar.YEAR),
+                    startDate.get(Calendar.MONTH),
+                    startDate.get(Calendar.DAY_OF_MONTH)
+                )
+                datePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000
+                datePickerDialog.show()
+            }
 
             btn_close_dialog.setOnClickListener {
                 dismiss()

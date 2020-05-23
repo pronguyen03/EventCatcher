@@ -72,6 +72,9 @@ class MainActivity : BaseActivity() {
                 R.id.listEventsFragment -> {
                     toolbar.visibility = View.VISIBLE
                 }
+                R.id.tutorialFragment -> {
+                    toolbar.visibility = View.VISIBLE
+                }
             }
 
         }

@@ -1,9 +1,14 @@
 package me.linhthengo.androiddddarchitechture.presentation.event
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import androidx.core.os.bundleOf
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.Timestamp
@@ -23,16 +28,19 @@ import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
-class ListEventsFragment : BaseFragment() {
-    private val eventsAdapter = EventsAdapter(arrayListOf())
+class ListEventsFragment : BaseFragment(), OnEventItemClickListener {
+    private val eventsAdapter = EventsAdapter(mutableListOf(), this)
     @Inject
     lateinit var firebaseAuthManager: FirebaseAuthManager
     private var firestoreDB: FirebaseFirestore? = null
 
+    private lateinit var sharedPreferences: SharedPreferences
     private var listEvents: MutableList<Event> = mutableListOf()
     override fun layoutId() = R.layout.fragment_list_events
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        sharedPreferences = requireContext().getSharedPreferences("location", Context.MODE_PRIVATE)
     }
 
     override fun onCreateView(
@@ -137,6 +145,22 @@ class ListEventsFragment : BaseFragment() {
             }
             listEvents.add(event)
         }
+        listEvents.sortedBy { event -> event.startDate }
         bindListCardEvents(listEvents)
     }
+
+    override fun onItemClick(event: Event, position: Int) {
+        val gson = Gson()
+        val listEventJson  = gson.toJson(listEvents)
+        val editor = sharedPreferences.edit()
+        editor.putString(HomeFragment.TAG_LIST_EVENTS, listEventJson)
+        editor.apply()
+        val bundle = bundleOf("event" to event)
+        findNavController().navigate(
+            R.id.action_listEventsFragment_to_eventDetailFragment,
+            bundle
+        )
+    }
+
+
 }
